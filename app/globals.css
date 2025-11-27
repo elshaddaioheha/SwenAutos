@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Neutral Palette */
+  --neutral-100: #111827;
+  --neutral-90: #1F2937;
+  --neutral-80: #374151;
+  --neutral-70: #4B5563;
+  --neutral-60: #6B7280;
+  --neutral-50: #9CA3AF;
+  --neutral-40: #D1D5DB;
+  --neutral-30: #E5E7EB;
+  --neutral-20: #F3F4F6;
+  --neutral-white: #FFFFFF;
+
+  /* Primary Palette */
+  --primary-100: #1D4ED8;
+  --primary-80: #2563EB;
+  --primary-60: #3B82F6;
+  --primary-40: #60A5FA;
+  --primary-20: #DBEAFE;
+  --primary-10: #D0D5DF;
+
+  /* Semantic Mapping */
+  --background: var(--neutral-white);
+  --foreground: var(--neutral-100);
+
+  --primary: var(--primary-100);
+  --primary-foreground: var(--neutral-white);
+
+  --secondary: var(--neutral-20);
+  --secondary-foreground: var(--neutral-90);
+
+  --accent: var(--primary-20);
+  --accent-foreground: var(--primary-100);
+
+  --muted: var(--neutral-20);
+  --muted-foreground: var(--neutral-60);
+
+  --card: var(--neutral-white);
+  --card-foreground: var(--neutral-100);
+
+  --border: var(--neutral-30);
+  --input: var(--neutral-30);
+  --ring: var(--primary-80);
+
+  --radius: 0.75rem;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--neutral-100);
+    --foreground: var(--neutral-20);
+
+    --primary: var(--primary-80);
+    --primary-foreground: var(--neutral-white);
+
+    --secondary: var(--neutral-90);
+    --secondary-foreground: var(--neutral-20);
+
+    --accent: var(--neutral-90);
+    --accent-foreground: var(--neutral-20);
+
+    --muted: var(--neutral-90);
+    --muted-foreground: var(--neutral-50);
+
+    --card: var(--neutral-100);
+    --card-foreground: var(--neutral-20);
+
+    --border: var(--neutral-80);
+    --input: var(--neutral-80);
+    --ring: var(--primary-60);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+  opacity: 0.5;
 }
