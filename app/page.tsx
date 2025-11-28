@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
+import NextImage from "next/image";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ui/product-card";
-import { Search, ArrowRight, ShieldCheck, Truck, Zap, Wrench, Disc, Activity, Car, Armchair, Battery, Lock } from "lucide-react";
+import { Search, ArrowRight, ShieldCheck, Truck, Zap, Wrench, Disc, Activity, Car, Armchair, Battery } from "lucide-react";
 
 // Mock Data
 const CATEGORIES = [
@@ -130,7 +131,14 @@ export default function Home() {
 
               {/* Step 2 */}
               <div className="flex flex-col items-center space-y-4">
-                <Lock className="h-14 w-14 text-primary fill-primary" />
+                <div className="h-14 w-14 relative">
+                  <NextImage
+                    src="/icon-secure-payment.png"
+                    alt="Secure Payment"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <h3 className="text-xl font-bold text-[#111827]">Secure Payment</h3>
                 <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
                   Pay safely with Naira or Crypto. Your money is held in escrow until delivery
@@ -139,7 +147,14 @@ export default function Home() {
 
               {/* Step 3 */}
               <div className="flex flex-col items-center space-y-4">
-                <Truck className="h-14 w-14 text-primary fill-primary" />
+                <div className="h-14 w-14 relative">
+                  <NextImage
+                    src="/icon-delivery.png"
+                    alt="Get Delivered"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
                 <h3 className="text-xl font-bold text-[#111827]">Get Delivered</h3>
                 <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
                   Receive parts at your doorstep or pickup from verified sellers near you
