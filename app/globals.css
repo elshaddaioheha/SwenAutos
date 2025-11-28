@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Neutral Palette */
   --neutral-100: #111827;
@@ -50,6 +52,7 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);

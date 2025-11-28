@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, Car, Menu, X, User, LogOut, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -113,95 +114,111 @@ export function Navbar() {
                         className="md:hidden text-gray-600"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
-                        {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                        <motion.div
+                            initial={false}
+                            animate={{ rotate: isMenuOpen ? 90 : 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                        </motion.div>
                     </Button>
                 </div>
             </div>
 
             {/* Mobile Menu */}
-            {isMenuOpen && (
-                <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-lg py-4 px-4 flex flex-col space-y-4 animate-in slide-in-from-top-5">
-                    <Link
-                        href="/"
-                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                        onClick={() => setIsMenuOpen(false)}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-gray-100 shadow-lg overflow-hidden"
                     >
-                        Home
-                    </Link>
-                    <Link
-                        href="/catalog"
-                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        Catalog
-                    </Link>
-                    <Link
-                        href="/cart"
-                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        Cart
-                    </Link>
-                    <Link
-                        href="/about"
-                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        About Us
-                    </Link>
-                    <Link
-                        href="/how-it-works"
-                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        How It Works
-                    </Link>
-                    <Link
-                        href="/vendor"
-                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                        onClick={() => setIsMenuOpen(false)}
-                    >
-                        Become a Vendor
-                    </Link>
-
-                    {isLoggedIn ? (
-                        <>
+                        <div className="flex flex-col space-y-4 p-4">
                             <Link
-                                href="/profile"
+                                href="/"
                                 className="text-base font-medium text-gray-600 hover:text-primary py-2"
                                 onClick={() => setIsMenuOpen(false)}
                             >
-                                Profile
+                                Home
                             </Link>
-                            <div className="pt-4 border-t border-gray-100">
-                                <Button
-                                    variant="outline"
-                                    className="w-full justify-center border-red-200 text-red-600 hover:bg-red-50"
-                                    onClick={() => {
-                                        handleLogout();
-                                        setIsMenuOpen(false);
-                                    }}
-                                >
-                                    Sign Out
-                                </Button>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="pt-4 border-t border-gray-100 flex flex-col space-y-3">
-                            <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                                <Button variant="outline" className="w-full justify-center border-primary text-primary hover:bg-primary/5">
-                                    Sign In
-                                </Button>
+                            <Link
+                                href="/catalog"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Catalog
                             </Link>
-                            <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                                <Button className="w-full justify-center bg-primary hover:bg-primary/90 text-white shadow-md shadow-blue-200">
-                                    Get Started
-                                </Button>
+                            <Link
+                                href="/cart"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Cart
                             </Link>
+                            <Link
+                                href="/about"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                About Us
+                            </Link>
+                            <Link
+                                href="/how-it-works"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                How It Works
+                            </Link>
+                            <Link
+                                href="/vendor"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Become a Vendor
+                            </Link>
+
+                            {isLoggedIn ? (
+                                <>
+                                    <Link
+                                        href="/profile"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Profile
+                                    </Link>
+                                    <div className="pt-4 border-t border-gray-100">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-center border-red-200 text-red-600 hover:bg-red-50"
+                                            onClick={() => {
+                                                handleLogout();
+                                                setIsMenuOpen(false);
+                                            }}
+                                        >
+                                            Sign Out
+                                        </Button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="pt-4 border-t border-gray-100 flex flex-col space-y-3">
+                                    <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                                        <Button variant="outline" className="w-full justify-center border-primary text-primary hover:bg-primary/5">
+                                            Sign In
+                                        </Button>
+                                    </Link>
+                                    <Link href="/register" onClick={() => setIsMenuOpen(false)}>
+                                        <Button className="w-full justify-center bg-primary hover:bg-primary/90 text-white shadow-md shadow-blue-200">
+                                            Get Started
+                                        </Button>
+                                    </Link>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
-            )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </header>
     );
 }
