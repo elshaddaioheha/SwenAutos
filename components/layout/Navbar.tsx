@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Car, Menu, X, User, LogOut } from 'lucide-react';
+import { Search, Car, Menu, X, User, LogOut, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
@@ -55,6 +55,9 @@ export function Navbar() {
                     <Link href="/" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
                         Home
                     </Link>
+                    <Link href="/catalog" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                        Catalog
+                    </Link>
                     <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
                         About Us
                     </Link>
@@ -73,6 +76,11 @@ export function Navbar() {
 
                 {/* Right Actions */}
                 <div className="flex items-center space-x-4">
+                    {/* Cart Icon (Desktop) */}
+                    <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors">
+                        <ShoppingCart className="h-5 w-5" />
+                    </Link>
+
                     {isLoggedIn ? (
                         <div className="hidden md:flex items-center space-x-4">
                             <Button variant="ghost" size="icon" onClick={() => router.push('/profile')}>
@@ -119,6 +127,20 @@ export function Navbar() {
                         onClick={() => setIsMenuOpen(false)}
                     >
                         Home
+                    </Link>
+                    <Link
+                        href="/catalog"
+                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                        onClick={() => setIsMenuOpen(false)}
+                    >
+                        Catalog
+                    </Link>
+                    <Link
+                        href="/cart"
+                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                        onClick={() => setIsMenuOpen(false)}
+                    >
+                        Cart
                     </Link>
                     <Link
                         href="/about"

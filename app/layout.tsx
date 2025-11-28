@@ -3,7 +3,6 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Web3Provider } from "@/components/providers/Web3Provider";
 import { Navbar } from "@/components/layout/Navbar";
-import { BottomNav } from "@/components/layout/BottomNav";
 import { Footer } from "@/components/layout/Footer";
 
 const manrope = Manrope({
@@ -34,7 +33,6 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
-            <BottomNav />
           </div>
         </Web3Provider>
       </body>
