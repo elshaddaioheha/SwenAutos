@@ -77,7 +77,8 @@
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-@media (prefers-color-scheme: dark) {
+/* Dark mode disabled for now to ensure design consistency with hardcoded colors */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: var(--neutral-100);
     --foreground: var(--neutral-20);
@@ -101,7 +102,7 @@
     --input: var(--neutral-80);
     --ring: var(--primary-60);
   }
-}
+} */
 
 body {
   background: var(--background);
