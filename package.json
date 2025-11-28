@@ -30,6 +30,7 @@
     "wagmi": "^3.0.2"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -37,6 +38,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
+    "hardhat": "^2.22.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
