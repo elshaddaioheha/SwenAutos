@@ -74,18 +74,18 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     const [priceCurrency, setPriceCurrency] = useState<"NGN" | "ETH">("NGN");
 
     return (
-        <div className="min-h-screen bg-[#F8F8F5] pb-20">
+        <div className="min-h-screen bg-gray-50 dark:bg-background pb-20 transition-colors duration-300">
 
             {/* Breadcrumb */}
             <div className="container px-4 md:px-6 py-4">
-                <div className="flex items-center text-sm text-gray-500 space-x-2 overflow-x-auto whitespace-nowrap">
-                    <Link href="/" className="text-[#6B7280] hover:text-[#1D4ED8]">Home</Link>
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-2 overflow-x-auto whitespace-nowrap">
+                    <Link href="/" className="hover:text-primary transition-colors">Home</Link>
                     <ChevronRight className="h-4 w-4" />
-                    <Link href="/shop" className="text-[#6B7280] hover:text-[#1D4ED8]">{PRODUCT.category}</Link>
+                    <Link href="/shop" className="hover:text-primary transition-colors">{PRODUCT.category}</Link>
                     <ChevronRight className="h-4 w-4" />
-                    <Link href="/shop" className="text-[#6B7280] hover:text-[#1D4ED8]">{PRODUCT.subCategory}</Link>
+                    <Link href="/shop" className="hover:text-primary transition-colors">{PRODUCT.subCategory}</Link>
                     <ChevronRight className="h-4 w-4" />
-                    <span className="font-bold text-[#111827]">{PRODUCT.name}</span>
+                    <span className="font-bold text-gray-900 dark:text-white">{PRODUCT.name}</span>
                 </div>
             </div>
 
@@ -94,8 +94,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
                     {/* Left Column: Images */}
                     <div className="space-y-6">
-                        <div className="relative aspect-square bg-white rounded-2xl border border-gray-100 overflow-hidden flex items-center justify-center p-8">
-                            <button className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-sm text-gray-400 hover:text-red-500 transition-colors z-10">
+                        <div className="relative aspect-square bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex items-center justify-center p-8 transition-colors duration-300">
+                            <button className="absolute top-4 right-4 p-2 bg-white dark:bg-gray-800 rounded-full shadow-sm text-gray-400 hover:text-red-500 transition-colors z-10">
                                 <Heart className="h-6 w-6" />
                             </button>
                             <div className="relative w-full h-full">
@@ -103,7 +103,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                     src={PRODUCT.images[activeImage]}
                                     alt={PRODUCT.name}
                                     fill
-                                    className="object-contain"
+                                    className="object-contain dark:invert"
                                     priority
                                 />
                             </div>
@@ -115,10 +115,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                 <button
                                     key={idx}
                                     onClick={() => setActiveImage(idx)}
-                                    className={`relative aspect-square bg-white rounded-lg border overflow-hidden transition-all ${activeImage === idx ? "border-[#1D4ED8] ring-2 ring-[#1D4ED8]/20" : "border-gray-200 hover:border-[#1D4ED8]"
+                                    className={`relative aspect-square bg-white dark:bg-gray-900 rounded-lg border overflow-hidden transition-all ${activeImage === idx ? "border-primary ring-2 ring-primary/20" : "border-gray-200 dark:border-gray-800 hover:border-primary"
                                         }`}
                                 >
-                                    <Image src={img} alt={`View ${idx + 1}`} fill className="object-contain p-2" />
+                                    <Image src={img} alt={`View ${idx + 1}`} fill className="object-contain p-2 dark:invert" />
                                 </button>
                             ))}
                         </div>
@@ -130,15 +130,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         {/* Header */}
                         <div>
                             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                                <h1 className="text-3xl font-bold text-[#111827] leading-tight max-w-xl">
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight max-w-xl">
                                     {PRODUCT.name}
                                 </h1>
                             </div>
 
                             <div className="flex items-center space-x-4 mt-3">
-                                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                                <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                                     <span>Part #: {PRODUCT.partNumber}</span>
-                                    <button className="text-[#1D4ED8] hover:text-[#1D4ED8]/80 flex items-center gap-1">
+                                    <button className="text-primary hover:text-primary/80 flex items-center gap-1">
                                         <Copy className="h-3 w-3" /> <span className="text-xs">Copy</span>
                                     </button>
                                 </div>
@@ -146,15 +146,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
                             {/* Badges */}
                             <div className="flex flex-wrap gap-3 mt-4">
-                                <div className="flex items-center space-x-1.5 bg-[#D1FAE5] text-[#065F46] px-3 py-1 rounded-full text-xs font-bold">
+                                <div className="flex items-center space-x-1.5 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold">
                                     <ShieldCheck className="h-3.5 w-3.5" />
                                     <span>OEM Authentic</span>
                                 </div>
-                                <div className="flex items-center space-x-1.5 bg-[#DBEAFE] text-[#1E40AF] px-3 py-1 rounded-full text-xs font-bold">
+                                <div className="flex items-center space-x-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold">
                                     <Box className="h-3.5 w-3.5" />
                                     <span>In Stock</span>
                                 </div>
-                                <div className="flex items-center space-x-1.5 bg-[#FEF3C7] text-[#92400E] px-3 py-1 rounded-full text-xs font-bold">
+                                <div className="flex items-center space-x-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-3 py-1 rounded-full text-xs font-bold">
                                     <Truck className="h-3.5 w-3.5" />
                                     <span>Fast Shipping</span>
                                 </div>
@@ -162,70 +162,70 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         </div>
 
                         {/* Price Card */}
-                        <div className="bg-[#E5F0FF]/50 rounded-xl p-6 border border-[#E5F0FF]">
+                        <div className="bg-blue-50/50 dark:bg-blue-900/10 rounded-xl p-6 border border-blue-100 dark:border-blue-900/20 transition-colors duration-300">
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <div className="text-4xl font-bold text-[#111827]">
+                                    <div className="text-4xl font-bold text-gray-900 dark:text-white">
                                         {priceCurrency === "NGN" ? `₦${PRODUCT.price.toLocaleString()}` : `${PRODUCT.priceEth} ETH`}
                                     </div>
-                                    <div className="text-[#1D4ED8] mt-1 font-medium">
+                                    <div className="text-primary mt-1 font-medium">
                                         ≈ {priceCurrency === "NGN" ? `${PRODUCT.priceEth} ETH` : `₦${PRODUCT.price.toLocaleString()}`}
                                     </div>
                                 </div>
 
                                 {/* Currency Toggle */}
-                                <div className="bg-white rounded-lg p-1 flex border border-gray-200">
+                                <div className="bg-white dark:bg-gray-800 rounded-lg p-1 flex border border-gray-200 dark:border-gray-700">
                                     <button
                                         onClick={() => setPriceCurrency("NGN")}
-                                        className={`px-3 py-1 text-xs font-bold rounded ${priceCurrency === "NGN" ? "bg-[#1D4ED8] text-white" : "text-gray-500 hover:bg-gray-50"}`}
+                                        className={`px-3 py-1 text-xs font-bold rounded transition-colors ${priceCurrency === "NGN" ? "bg-primary text-white" : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
                                     >
                                         ₦ NGN
                                     </button>
                                     <button
                                         onClick={() => setPriceCurrency("ETH")}
-                                        className={`px-3 py-1 text-xs font-bold rounded ${priceCurrency === "ETH" ? "bg-[#1D4ED8] text-white" : "text-gray-500 hover:bg-gray-50"}`}
+                                        className={`px-3 py-1 text-xs font-bold rounded transition-colors ${priceCurrency === "ETH" ? "bg-primary text-white" : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
                                     >
                                         ETH
                                     </button>
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-2 mt-4 text-[#10B981] font-bold text-sm">
-                                <div className="h-2 w-2 rounded-full bg-[#10B981]" />
+                            <div className="flex items-center space-x-2 mt-4 text-green-600 dark:text-green-400 font-bold text-sm">
+                                <div className="h-2 w-2 rounded-full bg-green-500" />
                                 <span>{PRODUCT.stock} units available</span>
-                                <span className="text-gray-300">|</span>
-                                <span className="bg-[#D1FAE5] text-[#065F46] px-2 py-0.5 rounded text-xs">Condition: {PRODUCT.condition}</span>
+                                <span className="text-gray-300 dark:text-gray-600">|</span>
+                                <span className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-2 py-0.5 rounded text-xs">Condition: {PRODUCT.condition}</span>
                             </div>
                         </div>
 
                         {/* Compatibility Checker */}
-                        <div className="border border-dashed border-[#1D4ED8]/30 rounded-xl p-6 bg-[#F8F8F5]">
+                        <div className="border border-dashed border-primary/30 rounded-xl p-6 bg-gray-50 dark:bg-gray-900/50 transition-colors duration-300">
                             <div className="flex items-center space-x-2 mb-4">
-                                <div className="bg-[#1D4ED8] rounded-full p-1.5">
+                                <div className="bg-primary rounded-full p-1.5">
                                     <Zap className="h-4 w-4 text-white" />
                                 </div>
-                                <h3 className="font-bold text-[#111827]">Check Compatibility</h3>
+                                <h3 className="font-bold text-gray-900 dark:text-white">Check Compatibility</h3>
                             </div>
 
                             <div className="grid grid-cols-3 gap-3 mb-4">
-                                <select className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1D4ED8] outline-none">
+                                <select className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none text-gray-900 dark:text-white transition-colors">
                                     <option>Year</option>
                                     <option>2023</option>
                                     <option>2022</option>
                                 </select>
-                                <select className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1D4ED8] outline-none">
+                                <select className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none text-gray-900 dark:text-white transition-colors">
                                     <option>Make</option>
                                     <option>Toyota</option>
                                     <option>Honda</option>
                                 </select>
-                                <select className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1D4ED8] outline-none">
+                                <select className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary outline-none text-gray-900 dark:text-white transition-colors">
                                     <option>Model</option>
                                     <option>Camry</option>
                                     <option>Corolla</option>
                                 </select>
                             </div>
 
-                            <Button className="w-full bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-10">
+                            <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold h-10">
                                 <Check className="h-4 w-4 mr-2" /> Check Fitment
                             </Button>
                         </div>
@@ -233,18 +233,18 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                         {/* Actions */}
                         <div className="space-y-4">
                             <div className="flex items-center space-x-4">
-                                <span className="font-bold text-[#111827]">Quantity</span>
-                                <div className="flex items-center border border-gray-200 rounded-lg bg-white">
+                                <span className="font-bold text-gray-900 dark:text-white">Quantity</span>
+                                <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 transition-colors">
                                     <button
                                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                        className="p-2 hover:bg-gray-50 text-[#1D4ED8]"
+                                        className="p-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-primary transition-colors"
                                     >
                                         <Minus className="h-4 w-4" />
                                     </button>
-                                    <span className="w-12 text-center font-bold">{quantity}</span>
+                                    <span className="w-12 text-center font-bold text-gray-900 dark:text-white">{quantity}</span>
                                     <button
                                         onClick={() => setQuantity(quantity + 1)}
-                                        className="p-2 hover:bg-gray-50 text-[#1D4ED8]"
+                                        className="p-2 hover:bg-gray-50 dark:hover:bg-gray-700 text-primary transition-colors"
                                     >
                                         <Plus className="h-4 w-4" />
                                     </button>
@@ -252,32 +252,32 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                             </div>
 
                             <div className="flex gap-4">
-                                <Button variant="outline" className="flex-1 h-12 border-[#1D4ED8] text-[#1D4ED8] hover:bg-[#1D4ED8]/5 font-bold text-base">
+                                <Button variant="outline" className="flex-1 h-12 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-bold text-base">
                                     <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
                                 </Button>
-                                <Button className="flex-1 h-12 bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold text-base">
+                                <Button className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base">
                                     Buy Now
                                 </Button>
                             </div>
                         </div>
 
                         {/* Seller Card */}
-                        <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+                        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 flex items-center justify-between transition-colors duration-300">
                             <div className="flex items-center space-x-3">
-                                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center text-[#1D4ED8] font-bold text-lg">
+                                <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-primary font-bold text-lg">
                                     AP
                                 </div>
                                 <div>
                                     <div className="flex items-center space-x-2">
-                                        <h4 className="font-bold text-[#111827]">{PRODUCT.seller.name}</h4>
+                                        <h4 className="font-bold text-gray-900 dark:text-white">{PRODUCT.seller.name}</h4>
                                         {PRODUCT.seller.verified && (
-                                            <ShieldCheck className="h-4 w-4 text-[#1D4ED8]" />
+                                            <ShieldCheck className="h-4 w-4 text-primary" />
                                         )}
                                     </div>
-                                    <div className="flex items-center text-sm text-gray-500 space-x-2">
-                                        <div className="flex items-center text-[#F59E0B]">
+                                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 space-x-2">
+                                        <div className="flex items-center text-yellow-500">
                                             <Star className="h-3.5 w-3.5 fill-current" />
-                                            <span className="ml-1 font-medium text-[#111827]">{PRODUCT.seller.rating}</span>
+                                            <span className="ml-1 font-medium text-gray-900 dark:text-white">{PRODUCT.seller.rating}</span>
                                         </div>
                                         <span>({PRODUCT.seller.reviews} reviews)</span>
                                     </div>
@@ -286,7 +286,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                     </div>
                                 </div>
                             </div>
-                            <Button variant="outline" size="sm" className="border-[#1D4ED8] text-[#1D4ED8] hover:bg-[#1D4ED8]/5">
+                            <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10">
                                 <MessageCircle className="h-4 w-4 mr-2" /> Message
                             </Button>
                         </div>
@@ -296,15 +296,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
                 {/* Tabs Section */}
                 <div className="mt-20">
-                    <div className="border-b border-gray-200">
+                    <div className="border-b border-gray-200 dark:border-gray-800">
                         <nav className="flex space-x-8">
                             {["Description", "Specifications", "Reviews", "Shipping", "Warranty"].map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab.toLowerCase())}
                                     className={`py-4 px-1 border-b-2 font-bold text-sm transition-colors ${activeTab === tab.toLowerCase()
-                                            ? "border-[#1D4ED8] text-[#1D4ED8]"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        ? "border-primary text-primary"
+                                        : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700"
                                         }`}
                                 >
                                     {tab}
@@ -316,24 +316,24 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     <div className="py-8">
                         {activeTab === "description" && (
                             <div className="max-w-4xl">
-                                <p className="text-gray-600 leading-relaxed mb-8 text-lg">
+                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-8 text-lg">
                                     {PRODUCT.description}
                                 </p>
 
-                                <h3 className="text-xl font-bold text-[#111827] mb-4">Key Features:</h3>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Key Features:</h3>
                                 <ul className="space-y-3">
                                     {PRODUCT.features.map((feature, idx) => (
                                         <li key={idx} className="flex items-start space-x-3">
-                                            <div className="mt-1 bg-[#10B981]/10 rounded-full p-1">
-                                                <Check className="h-3 w-3 text-[#10B981]" />
+                                            <div className="mt-1 bg-green-100 dark:bg-green-900/30 rounded-full p-1">
+                                                <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
                                             </div>
-                                            <span className="text-gray-700">{feature}</span>
+                                            <span className="text-gray-700 dark:text-gray-300">{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
 
-                                <h3 className="text-xl font-bold text-[#111827] mt-8 mb-4">Installation Notes:</h3>
-                                <p className="text-gray-600 leading-relaxed">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">Installation Notes:</h3>
+                                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                                     Replace during regular oil changes. Hand-tighten filter then add 3/4 turn with filter wrench. Do not over-tighten. Always use new filter gasket and check for leaks after installation.
                                 </p>
                             </div>
@@ -341,15 +341,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
                         {activeTab === "specifications" && (
                             <div className="max-w-3xl">
-                                <div className="border rounded-lg overflow-hidden">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <tbody className="bg-white divide-y divide-gray-200">
+                                <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+                                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                                        <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
                                             {PRODUCT.specs.map((spec, idx) => (
-                                                <tr key={idx} className={idx % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 w-1/3">
+                                                <tr key={idx} className={idx % 2 === 0 ? "bg-gray-50 dark:bg-gray-800/50" : "bg-white dark:bg-gray-900"}>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white w-1/3">
                                                         {spec.label}
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                                         {spec.value}
                                                     </td>
                                                 </tr>
@@ -362,9 +362,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
                         {activeTab === "reviews" && (
                             <div className="max-w-3xl space-y-6">
-                                <div className="bg-gray-50 p-6 rounded-xl text-center">
-                                    <h3 className="text-lg font-bold text-gray-900">Customer Reviews</h3>
-                                    <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
+                                <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-xl text-center border border-gray-100 dark:border-gray-800">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Customer Reviews</h3>
+                                    <p className="text-gray-500 dark:text-gray-400">No reviews yet. Be the first to review this product!</p>
                                 </div>
                             </div>
                         )}
@@ -373,23 +373,23 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
                 {/* Related Products */}
                 <div className="mt-12 mb-20">
-                    <h2 className="text-2xl font-bold text-[#111827] mb-6">You May Also Like</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">You May Also Like</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                         {RELATED_PRODUCTS.map((product) => (
-                            <div key={product.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer">
-                                <div className="relative h-48 bg-gray-100 p-4 flex items-center justify-center">
-                                    <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
-                                        <Image src={product.image} width={128} height={128} alt={product.name} className="object-contain" />
+                            <div key={product.id} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-all group cursor-pointer">
+                                <div className="relative h-48 bg-gray-100 dark:bg-gray-800 p-4 flex items-center justify-center transition-colors">
+                                    <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center text-gray-400">
+                                        <Image src={product.image} width={128} height={128} alt={product.name} className="object-contain dark:invert" />
                                     </div>
                                 </div>
                                 <div className="p-4">
-                                    <h3 className="font-bold text-[#111827] text-sm mb-2 group-hover:text-[#1D4ED8] line-clamp-2">{product.name}</h3>
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 group-hover:text-primary line-clamp-2 transition-colors">{product.name}</h3>
                                     <div className="flex items-end justify-between">
                                         <div>
-                                            <div className="text-lg font-bold text-[#1D4ED8]">₦{product.price.toLocaleString()}</div>
-                                            <div className="text-xs text-gray-500">≈ {product.eth} ETH</div>
+                                            <div className="text-lg font-bold text-primary">₦{product.price.toLocaleString()}</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400">≈ {product.eth} ETH</div>
                                         </div>
-                                        <button className="bg-[#1D4ED8] text-white p-2 rounded-lg hover:bg-[#1D4ED8]/90">
+                                        <button className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition-colors">
                                             <ShoppingCart className="h-4 w-4" />
                                         </button>
                                     </div>

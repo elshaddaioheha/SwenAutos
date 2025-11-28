@@ -58,29 +58,29 @@ const FEATURED_PRODUCTS = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#111827] text-gray-900 dark:text-white transition-colors duration-300">
       {/* Hero Section */}
       <div className="p-4 md:p-6 lg:p-8">
-        <section className="relative bg-[#F3F4F6] rounded-3xl py-16 md:py-24 overflow-hidden">
+        <section className="relative bg-white dark:bg-gray-900 rounded-3xl py-16 md:py-24 overflow-hidden transition-colors duration-300 shadow-sm">
           <div className="container px-4 md:px-6 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Left Content */}
               <div className="space-y-8">
                 <SlideUp className="space-y-6">
-                  <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-[#111827] leading-tight">
+                  <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
                     Buy & Sell Auto Parts with Trust
                   </h1>
-                  <p className="text-lg md:text-xl text-gray-500 max-w-xl">
+                  <p className="text-lg md:text-xl text-gray-500 dark:text-gray-400 max-w-xl">
                     Connect with verified sellers. Pay with Naira or Crypto. Get genuine OEM and aftermarket parts delivered safely.
                   </p>
                 </SlideUp>
 
                 <SlideUp delay={0.2} className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-12 rounded-lg shadow-blue-200 shadow-lg">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-12 rounded-lg shadow-blue-200 dark:shadow-blue-900/20 shadow-lg">
                     <Search className="mr-2 h-5 w-5" />
                     Find Parts Now
                   </Button>
-                  <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5 font-semibold px-8 h-12 rounded-lg">
+                  <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-semibold px-8 h-12 rounded-lg">
                     <Truck className="mr-2 h-5 w-5" />
                     Sell Your Parts
                   </Button>
@@ -88,15 +88,15 @@ export default function Home() {
 
                 {/* Trust Indicators */}
                 <SlideUp delay={0.4} className="flex flex-wrap gap-6 pt-4">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <ShieldCheck className="h-5 w-5 text-green-500" />
                     <span>1000+ Verified Sellers</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <ShieldCheck className="h-5 w-5 text-blue-500" />
                     <span>Escrow Protected</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <Truck className="h-5 w-5 text-yellow-500" />
                     <span>Fast Delivery</span>
                   </div>
@@ -105,7 +105,7 @@ export default function Home() {
 
               {/* Right Content (Placeholder Card) */}
               <ScaleIn delay={0.3} className="relative hidden lg:block">
-                <div className="bg-gray-200/50 rounded-3xl aspect-[4/3] flex items-center justify-center border border-white/50 shadow-xl backdrop-blur-sm">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-3xl aspect-[4/3] flex items-center justify-center border border-white dark:border-gray-700 shadow-xl backdrop-blur-sm">
                   <Car className="h-24 w-24 text-primary" />
                 </div>
               </ScaleIn>
@@ -115,19 +115,19 @@ export default function Home() {
       </div>
 
       {/* How SwenAutos Works */}
-      <section className="py-12">
+      <section className="py-12 bg-white dark:bg-[#111827] transition-colors duration-300">
         <div className="container px-4 md:px-6">
           <SlideUp className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#111827]">How SwenAutos Works</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">How SwenAutos Works</h2>
           </SlideUp>
 
-          <div className="rounded-xl p-8 md:p-12 bg-white mx-auto max-w-6xl shadow-sm">
+          <div className="rounded-xl p-8 md:p-12 bg-gray-50 dark:bg-gray-900 mx-auto max-w-6xl shadow-sm border border-gray-100 dark:border-gray-800 transition-colors duration-300">
             <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
               {/* Step 1 */}
               <StaggerItem className="flex flex-col items-center space-y-4">
                 <Search className="h-14 w-14 text-primary" strokeWidth={2.5} />
-                <h3 className="text-xl font-bold text-[#111827]">Search & Find</h3>
-                <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Search & Find</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs mx-auto leading-relaxed">
                   Browse thousands of genuine spare parts from verified sellers across Nigeria
                 </p>
               </StaggerItem>
@@ -139,11 +139,11 @@ export default function Home() {
                     src="/icon-secure-payment.png"
                     alt="Secure Payment"
                     fill
-                    className="object-contain"
+                    className="object-contain dark:invert"
                   />
                 </div>
-                <h3 className="text-xl font-bold text-[#111827]">Secure Payment</h3>
-                <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Secure Payment</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs mx-auto leading-relaxed">
                   Pay safely with Naira or Crypto. Your money is held in escrow until delivery
                 </p>
               </StaggerItem>
@@ -155,11 +155,11 @@ export default function Home() {
                     src="/icon-delivery.png"
                     alt="Get Delivered"
                     fill
-                    className="object-contain"
+                    className="object-contain dark:invert"
                   />
                 </div>
-                <h3 className="text-xl font-bold text-[#111827]">Get Delivered</h3>
-                <p className="text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Get Delivered</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs mx-auto leading-relaxed">
                   Receive parts at your doorstep or pickup from verified sellers near you
                 </p>
               </StaggerItem>
@@ -169,21 +169,21 @@ export default function Home() {
       </section>
 
       {/* Popular Spare Parts */}
-      <section className="py-16 bg-[#F9FAFB]">
+      <section className="py-16 bg-gray-50 dark:bg-[#0B1120] transition-colors duration-300">
         <div className="container px-4 md:px-6">
           <SlideUp className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#111827]">Popular Spare Parts</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Popular Spare Parts</h2>
           </SlideUp>
 
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Product 1 */}
-            <StaggerItem className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 group hover:shadow-md transition-shadow">
-              <div className="bg-[#E5E7EB] h-48 flex items-center justify-center">
+            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
                 <Wrench className="h-12 w-12 text-primary" />
               </div>
               <div className="p-4 space-y-3">
                 <div>
-                  <h3 className="font-bold text-[#111827] text-sm">Engine Oil Filter</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Engine Oil Filter</h3>
                   <p className="text-primary font-bold mt-1">₦12,500</p>
                   <p className="text-xs text-gray-400">≈ 0.008 ETH</p>
                 </div>
@@ -194,13 +194,13 @@ export default function Home() {
             </StaggerItem>
 
             {/* Product 2 */}
-            <StaggerItem className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 group hover:shadow-md transition-shadow">
-              <div className="bg-[#E5E7EB] h-48 flex items-center justify-center">
+            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
                 <Disc className="h-12 w-12 text-primary" />
               </div>
               <div className="p-4 space-y-3">
                 <div>
-                  <h3 className="font-bold text-[#111827] text-sm">Brake Pads Set</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Brake Pads Set</h3>
                   <p className="text-primary font-bold mt-1">₦28,000</p>
                   <p className="text-xs text-gray-400">≈ 0.018 ETH</p>
                 </div>
@@ -211,13 +211,13 @@ export default function Home() {
             </StaggerItem>
 
             {/* Product 3 */}
-            <StaggerItem className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 group hover:shadow-md transition-shadow">
-              <div className="bg-[#E5E7EB] h-48 flex items-center justify-center">
+            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
                 <Battery className="h-12 w-12 text-primary" />
               </div>
               <div className="p-4 space-y-3">
                 <div>
-                  <h3 className="font-bold text-[#111827] text-sm">Car Battery 12V</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Car Battery 12V</h3>
                   <p className="text-primary font-bold mt-1">₦45,000</p>
                   <p className="text-xs text-gray-400">≈ 0.029 ETH</p>
                 </div>
@@ -228,13 +228,13 @@ export default function Home() {
             </StaggerItem>
 
             {/* Product 4 */}
-            <StaggerItem className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 group hover:shadow-md transition-shadow">
-              <div className="bg-[#E5E7EB] h-48 flex items-center justify-center">
+            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
                 <Car className="h-12 w-12 text-primary" />
               </div>
               <div className="p-4 space-y-3">
                 <div>
-                  <h3 className="font-bold text-[#111827] text-sm">Headlight Assembly</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Headlight Assembly</h3>
                   <p className="text-primary font-bold mt-1">₦35,000</p>
                   <p className="text-xs text-gray-400">≈ 0.022 ETH</p>
                 </div>
