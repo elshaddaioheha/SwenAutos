@@ -50,7 +50,7 @@
     "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
-    "hardhat": "^2.22.17",
+    "hardhat": "2.22.16",
     "hardhat-gas-reporter": "^2.3.0",
     "solidity-coverage": "^0.8.16",
     "tailwindcss": "^4",
