@@ -1,0 +1,54 @@
+# 🚀 Deploying SwenAutos to Vercel
+
+Your project is ready for deployment! Since we are currently using mock data for the frontend, you don't need to worry about connecting to the blockchain or setting up complex environment variables yet.
+
+## Prerequisites
+
+1.  **GitHub Repository**: Ensure your latest code is pushed to GitHub (we just did this!).
+2.  **Vercel Account**: You need a Vercel account (free tier is fine).
+
+## Step-by-Step Deployment Guide
+
+### 1. Import Project to Vercel
+
+1.  Log in to your [Vercel Dashboard](https://vercel.com/dashboard).
+2.  Click **"Add New..."** -> **"Project"**.
+3.  Select your GitHub repository (`swenautos-marketplace` or whatever you named it).
+4.  Click **"Import"**.
+
+### 2. Configure Project
+
+Vercel will automatically detect that this is a **Next.js** project.
+
+*   **Framework Preset**: Next.js (should be auto-selected).
+*   **Root Directory**: `./` (default).
+*   **Build Command**: `next build` (default).
+*   **Output Directory**: `.next` (default).
+*   **Install Command**: `npm install` (default).
+
+**Environment Variables:**
+Since we are using dummy data, you **DO NOT** need to add any environment variables for this deployment. The app will run in "demo mode" using the hardcoded data we implemented.
+
+### 3. Deploy
+
+1.  Click **"Deploy"**.
+2.  Wait for the build to complete (it should take about 1-2 minutes).
+3.  Once finished, you will get a live URL (e.g., `https://swenautos-marketplace.vercel.app`).
+
+## What to Expect
+
+*   **Homepage**: Fully functional UI.
+*   **Dashboard**: You can browse categories and see the "Popular Parts".
+*   **Product Page**: Clicking a product will show the detailed view with the mock data.
+*   **Cart/Checkout**: You can click through the checkout flow (Cart -> Delivery -> Payment), but the "Complete Payment" button won't actually process a transaction.
+*   **Login/Register**: You can "log in" (it simulates a delay and redirects you), but it won't actually authenticate against a database.
+
+## Future Updates
+
+When we are ready to connect the real backend (Phase 3 & 4):
+1.  We will add environment variables to Vercel (e.g., `NEXT_PUBLIC_CONTRACT_ADDRESS`, `NEXT_PUBLIC_ALCHEMY_KEY`).
+2.  We will redeploy to update the app with the real logic.
+
+---
+
+**🎉 Enjoy your live demo!**
