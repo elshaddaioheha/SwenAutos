@@ -94,15 +94,18 @@ export function Navbar() {
                         </div>
                     ) : (
                         <div className="hidden md:flex items-center space-x-4">
-                            <Link href="/login">
-                                <Button variant="outline" className="border-primary text-primary hover:bg-primary/5 font-semibold px-6">
-                                    Sign In
-                                </Button>
+                            <Link
+                                href="/login"
+                                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-primary text-primary hover:bg-primary/5 font-semibold h-10 px-6"
+                            >
+                                Sign In
                             </Link>
-                            <Link href="/register">
-                                <Button className="bg-primary hover:bg-primary/90 text-white font-semibold px-6 shadow-md shadow-blue-200">
-                                    Get Started
-                                </Button>
+
+                            <Link
+                                href="/register"
+                                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-10 px-6 shadow-md shadow-blue-200"
+                            >
+                                Get Started
                             </Link>
                         </div>
                     )}
@@ -203,15 +206,19 @@ export function Navbar() {
                                 </>
                             ) : (
                                 <div className="pt-4 border-t border-gray-100 flex flex-col space-y-3">
-                                    <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                                        <Button variant="outline" className="w-full justify-center border-primary text-primary hover:bg-primary/5">
-                                            Sign In
-                                        </Button>
+                                    <Link
+                                        href="/login"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-primary text-primary hover:bg-primary/5 w-full h-10"
+                                    >
+                                        Sign In
                                     </Link>
-                                    <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                                        <Button className="w-full justify-center bg-primary hover:bg-primary/90 text-white shadow-md shadow-blue-200">
-                                            Get Started
-                                        </Button>
+                                    <Link
+                                        href="/register"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 w-full h-10 shadow-md shadow-blue-200"
+                                    >
+                                        Get Started
                                     </Link>
                                 </div>
                             )}
