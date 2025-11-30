@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -68,10 +69,38 @@ const RELATED_PRODUCTS = [
 ];
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState("description");
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState(0);
     const [priceCurrency, setPriceCurrency] = useState<"NGN" | "ETH">("NGN");
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+    useEffect(() => {
+        const checkAuth = () => {
+            const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            if (!loggedIn) {
+                router.push(`/login?redirect=/product/${params.id}`);
+            } else {
+                setIsCheckingAuth(false);
+            }
+        };
+        checkAuth();
+    }, [router, params.id]);
+
+    if (isCheckingAuth) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-white">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="relative w-16 h-16">
+                        <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
+                    </div>
+                    <p className="text-gray-500 font-medium animate-pulse">Loading Product...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-background pb-20 transition-colors duration-300">

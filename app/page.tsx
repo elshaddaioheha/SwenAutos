@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import NextImage from "next/image";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ui/product-card";
@@ -76,14 +77,18 @@ export default function Home() {
                 </SlideUp>
 
                 <SlideUp delay={0.2} className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-12 rounded-lg shadow-blue-200 dark:shadow-blue-900/20 shadow-lg">
-                    <Search className="mr-2 h-5 w-5" />
-                    Find Parts Now
-                  </Button>
-                  <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-semibold px-8 h-12 rounded-lg">
-                    <Truck className="mr-2 h-5 w-5" />
-                    Sell Your Parts
-                  </Button>
+                  <Link href="/catalog">
+                    <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-12 rounded-lg shadow-blue-200 dark:shadow-blue-900/20 shadow-lg">
+                      <Search className="mr-2 h-5 w-5" />
+                      Find Parts Now
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-semibold px-8 h-12 rounded-lg">
+                      <Truck className="mr-2 h-5 w-5" />
+                      Sell Your Parts
+                    </Button>
+                  </Link>
                 </SlideUp>
 
                 {/* Trust Indicators */}
@@ -187,9 +192,11 @@ export default function Home() {
                   <p className="text-primary font-bold mt-1">₦12,500</p>
                   <p className="text-xs text-gray-400">≈ 0.008 ETH</p>
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                  View Details
-                </Button>
+                <Link href="/product/1" className="block w-full">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                    View Details
+                  </Button>
+                </Link>
               </div>
             </StaggerItem>
 
@@ -204,9 +211,11 @@ export default function Home() {
                   <p className="text-primary font-bold mt-1">₦28,000</p>
                   <p className="text-xs text-gray-400">≈ 0.018 ETH</p>
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                  View Details
-                </Button>
+                <Link href="/product/2" className="block w-full">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                    View Details
+                  </Button>
+                </Link>
               </div>
             </StaggerItem>
 
@@ -221,9 +230,11 @@ export default function Home() {
                   <p className="text-primary font-bold mt-1">₦45,000</p>
                   <p className="text-xs text-gray-400">≈ 0.029 ETH</p>
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                  View Details
-                </Button>
+                <Link href="/product/3" className="block w-full">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                    View Details
+                  </Button>
+                </Link>
               </div>
             </StaggerItem>
 
@@ -238,9 +249,11 @@ export default function Home() {
                   <p className="text-primary font-bold mt-1">₦35,000</p>
                   <p className="text-xs text-gray-400">≈ 0.022 ETH</p>
                 </div>
-                <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                  View Details
-                </Button>
+                <Link href="/product/4" className="block w-full">
+                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                    View Details
+                  </Button>
+                </Link>
               </div>
             </StaggerItem>
           </StaggerContainer>
@@ -255,10 +268,12 @@ export default function Home() {
             <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
               Join 1000+ verified vendors earning on SwenAutos
             </p>
-            <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-primary font-semibold px-8 h-12">
-              <Truck className="mr-2 h-5 w-5" />
-              Start Selling Today
-            </Button>
+            <Link href="/register">
+              <Button size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-primary font-semibold px-8 h-12">
+                <Truck className="mr-2 h-5 w-5" />
+                Start Selling Today
+              </Button>
+            </Link>
           </SlideUp>
         </div>
       </section>
