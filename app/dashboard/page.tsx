@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -7,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useCart } from "@/components/providers/CartProvider";
 
 export default function DashboardPage() {
     return (
@@ -38,6 +42,15 @@ export default function DashboardPage() {
                                     {item}
                                 </button>
                             ))}
+                        </div>
+
+                        <div className="mt-8">
+                            <Link href="/dashboard/create-listing">
+                                <Button size="lg" className="bg-white text-[#1D4ED8] hover:bg-gray-100 font-bold shadow-lg border-2 border-transparent hover:border-white/50">
+                                    <Package className="mr-2 h-5 w-5" />
+                                    Sell a Part
+                                </Button>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -104,51 +117,93 @@ export default function DashboardPage() {
                     {/* Product Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                         {[
-                            { name: "Engine Oil Filter - Toyota Camry", price: 12500, eth: 0.008, reviews: 48, rating: 5 },
-                            { name: "Brake Pads Set - Honda Accord", price: 28000, eth: 0.018, reviews: 92, rating: 5 },
-                            { name: "Car Battery 12V - Universal", price: 45000, eth: 0.029, reviews: 35, rating: 4 },
-                            { name: "Headlight Assembly - Mercedes", price: 85000, eth: 0.055, reviews: 67, rating: 5 },
-                        ].map((product, idx) => (
-                            <div key={idx} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group">
-                                <div className="relative h-48 bg-gray-100 p-4 flex items-center justify-center">
-                                    <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                                        <span className="bg-[#10B981] text-white text-[10px] font-bold px-2 py-1 rounded">VERIFIED</span>
-                                    </div>
-                                    <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
-                                        <Image src="/placeholder-part.png" width={128} height={128} alt={product.name} className="object-contain" />
-                                    </div>
-                                </div>
-
-                                <div className="p-4 space-y-3">
-                                    <div>
-                                        <h3 className="font-bold text-[#111827] leading-tight group-hover:text-[#1D4ED8] transition-colors line-clamp-1">
-                                            {product.name}
-                                        </h3>
-                                        <div className="flex items-center space-x-1 mt-1">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} className={`h-3 w-3 ${i < product.rating ? "fill-[#F59E0B] text-[#F59E0B]" : "text-gray-300"}`} />
-                                            ))}
-                                            <span className="text-xs text-gray-500 ml-1">({product.reviews})</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-end justify-between pt-1">
-                                        <div>
-                                            <div className="text-lg font-bold text-[#1D4ED8]">₦{product.price.toLocaleString()}</div>
-                                            <div className="text-xs text-gray-500">≈ {product.eth} ETH</div>
-                                        </div>
-                                    </div>
-
-                                    <Button className="w-full bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-10">
-                                        Add to Cart
-                                    </Button>
-                                </div>
-                            </div>
+                            { id: "1", name: "Engine Oil Filter - Toyota Camry", price: 12500, eth: 0.008, reviews: 48, rating: 5, image: "/placeholder-part.png" },
+                            { id: "2", name: "Brake Pads Set - Honda Accord", price: 28000, eth: 0.018, reviews: 92, rating: 5, image: "/placeholder-part.png" },
+                            { id: "3", name: "Car Battery 12V - Universal", price: 45000, eth: 0.029, reviews: 35, rating: 4, image: "/placeholder-part.png" },
+                            { id: "4", name: "Headlight Assembly - Mercedes", price: 85000, eth: 0.055, reviews: 67, rating: 5, image: "/placeholder-part.png" },
+                        ].map((product) => (
+                            <ProductCard key={product.id} product={product} />
                         ))}
                     </div>
-
                 </div>
             </div>
         </div>
     );
 }
+
+function ProductCard({ product }: { product: any }) {
+    const { addItem } = useCart();
+    const [isAdded, setIsAdded] = useState(false);
+
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        addItem({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image
+        });
+
+        setIsAdded(true);
+        setTimeout(() => setIsAdded(false), 2000);
+    };
+
+    return (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col h-full">
+            <Link href={`/shop/${product.id}`} className="block flex-1">
+                <div className="relative h-48 bg-gray-100 p-4 flex items-center justify-center">
+                    <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+                        <span className="bg-[#10B981] text-white text-[10px] font-bold px-2 py-1 rounded">VERIFIED</span>
+                    </div>
+                    <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 relative">
+                        <Image src={product.image} fill alt={product.name} className="object-contain p-2" />
+                    </div>
+                </div>
+
+                <div className="p-4 space-y-3">
+                    <div>
+                        <h3 className="font-bold text-[#111827] leading-tight group-hover:text-[#1D4ED8] transition-colors line-clamp-1">
+                            {product.name}
+                        </h3>
+                        <div className="flex items-center space-x-1 mt-1">
+                            {[...Array(5)].map((_, i) => (
+                                <Star key={i} className={`h-3 w-3 ${i < product.rating ? "fill-[#F59E0B] text-[#F59E0B]" : "text-gray-300"}`} />
+                            ))}
+                            <span className="text-xs text-gray-500 ml-1">({product.reviews})</span>
+                        </div>
+                    </div>
+
+                    <div className="flex items-end justify-between pt-1">
+                        <div>
+                            <div className="text-lg font-bold text-[#1D4ED8]">₦{product.price.toLocaleString()}</div>
+                            <div className="text-xs text-gray-500">≈ {product.eth} ETH</div>
+                        </div>
+                    </div>
+                </div>
+            </Link>
+
+            <div className="p-4 pt-0 mt-auto">
+                <Button
+                    onClick={handleAddToCart}
+                    className={`w-full font-bold h-10 transition-all duration-300 ${isAdded
+                        ? "bg-green-600 hover:bg-green-700 text-white"
+                        : "bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white"
+                        }`}
+                >
+                    {isAdded ? (
+                        <>
+                            <Check className="mr-2 h-4 w-4" />
+                            Added to Cart
+                        </>
+                    ) : (
+                        "Add to Cart"
+                    )}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+

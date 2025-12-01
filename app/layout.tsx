@@ -4,6 +4,8 @@ import "./globals.css";
 import { Web3Provider } from "@/components/providers/Web3Provider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CartProvider } from "@/components/providers/CartProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -27,13 +29,17 @@ export default function RootLayout({
         className={`${manrope.variable} ${manrope.className} antialiased bg-background text-foreground`}
       >
         <Web3Provider>
-          <div className="relative flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          <AuthProvider>
+            <CartProvider>
+              <div className="relative flex min-h-screen flex-col">
+                <Navbar />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </CartProvider>
+          </AuthProvider>
         </Web3Provider>
       </body>
     </html>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import {
     Check, Copy, ChevronRight, Minus, Plus, MessageCircle,
     MapPin, Award, Box, Zap, Layers, Circle, Armchair, Disc, Activity
 } from "lucide-react";
+import { PayWithFiatWrapper } from "@/components/payment/PayWithFiatWrapper";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -68,7 +69,8 @@ const RELATED_PRODUCTS = [
     { id: "5", name: "Fuel Filter - Camry", price: 15500, eth: 0.010, image: "/placeholder-part.png" },
 ];
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const unwrappedParams = React.use(params);
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("description");
     const [quantity, setQuantity] = useState(1);
@@ -80,13 +82,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         const checkAuth = () => {
             const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
             if (!loggedIn) {
-                router.push(`/login?redirect=/product/${params.id}`);
+                router.push(`/login?redirect=/product/${unwrappedParams.id}`);
             } else {
                 setIsCheckingAuth(false);
             }
         };
         checkAuth();
-    }, [router, params.id]);
+    }, [router, unwrappedParams.id]);
 
     if (isCheckingAuth) {
         return (
@@ -285,8 +287,14 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                                     <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
                                 </Button>
                                 <Button className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base">
-                                    Buy Now
+                                    Buy with Crypto
                                 </Button>
+                            </div>
+                            <div className="mt-4">
+                                <PayWithFiatWrapper
+                                    email="customer@example.com"
+                                    amount={PRODUCT.price}
+                                />
                             </div>
                         </div>
 

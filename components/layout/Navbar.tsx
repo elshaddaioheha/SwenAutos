@@ -1,44 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Car, Menu, X, User, LogOut, ShoppingCart } from 'lucide-react';
+import { Search, Car, Menu, X, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuthState } from '@campnetwork/origin/react';
+import { UserProfile } from '@/components/auth/UserProfile';
+import { useCart } from '@/components/providers/CartProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export function Navbar() {
+    const { authenticated } = useAuthState();
+    const { isAuthenticated } = useAuth();
+    const { totalItems } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const router = useRouter();
-
-    useEffect(() => {
-        // Check auth state on mount
-        const checkAuth = () => {
-            const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            setIsLoggedIn(loggedIn);
-        };
-
-        checkAuth();
-
-        // Listen for storage events to update state across tabs/windows
-        window.addEventListener('storage', checkAuth);
-
-        // Custom event for immediate updates within the same window
-        window.addEventListener('auth-change', checkAuth);
-
-        return () => {
-            window.removeEventListener('storage', checkAuth);
-            window.removeEventListener('auth-change', checkAuth);
-        };
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('isLoggedIn');
-        setIsLoggedIn(false);
-        window.dispatchEvent(new Event('auth-change'));
-        router.push('/');
-    };
 
     return (
         <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100">
@@ -68,30 +46,32 @@ export function Navbar() {
                     <Link href="/vendor" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
                         Become a Vendor
                     </Link>
-                    {isLoggedIn && (
-                        <Link href="/profile" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                            Profile
-                        </Link>
-                    )}
                 </nav>
 
                 {/* Right Actions */}
                 <div className="flex items-center space-x-4">
+                    {/* Search Bar (Desktop) */}
+                    <div className="hidden lg:flex relative w-64 xl:w-80">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search parts..."
+                            className="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-sm outline-none"
+                        />
+                    </div>
+
                     {/* Cart Icon (Desktop) */}
-                    <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors">
+                    <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors relative p-2 rounded-full hover:bg-gray-100">
                         <ShoppingCart className="h-5 w-5" />
+                        {totalItems > 0 && (
+                            <span className="absolute top-0 right-0 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
+                                {totalItems}
+                            </span>
+                        )}
                     </Link>
 
-                    {isLoggedIn ? (
-                        <div className="hidden md:flex items-center space-x-4">
-                            <Button variant="ghost" size="icon" onClick={() => router.push('/profile')}>
-                                <User className="h-5 w-5 text-gray-600" />
-                            </Button>
-                            <Button variant="outline" onClick={handleLogout} className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
-                                <LogOut className="h-4 w-4 mr-2" />
-                                Sign Out
-                            </Button>
-                        </div>
+                    {authenticated || isAuthenticated ? (
+                        <UserProfile />
                     ) : (
                         <div className="hidden md:flex items-center space-x-4">
                             <Link
@@ -155,10 +135,13 @@ export function Navbar() {
                             </Link>
                             <Link
                                 href="/cart"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2 flex items-center justify-between"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 Cart
+                                <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold">
+                                    3 Items
+                                </span>
                             </Link>
                             <Link
                                 href="/about"
@@ -182,22 +165,23 @@ export function Navbar() {
                                 Become a Vendor
                             </Link>
 
-                            {isLoggedIn ? (
+                            {authenticated || isAuthenticated ? (
                                 <>
                                     <Link
-                                        href="/profile"
+                                        href="/dashboard"
                                         className="text-base font-medium text-gray-600 hover:text-primary py-2"
                                         onClick={() => setIsMenuOpen(false)}
                                     >
-                                        Profile
+                                        Dashboard
                                     </Link>
                                     <div className="pt-4 border-t border-gray-100">
                                         <Button
                                             variant="outline"
                                             className="w-full justify-center border-red-200 text-red-600 hover:bg-red-50"
                                             onClick={() => {
-                                                handleLogout();
                                                 setIsMenuOpen(false);
+                                                // For now just redirect to home, real logout happens in wallet
+                                                router.push('/');
                                             }}
                                         >
                                             Sign Out

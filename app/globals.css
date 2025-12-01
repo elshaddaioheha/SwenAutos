@@ -1,9 +1,10 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Neutral Palette */
+  /* Neutral Palette (Strict) */
   --neutral-100: #111827;
   --neutral-90: #1F2937;
   --neutral-80: #374151;
@@ -15,7 +16,7 @@
   --neutral-20: #F3F4F6;
   --neutral-white: #FFFFFF;
 
-  /* Primary Palette */
+  /* Primary Palette (Strict) */
   --primary-100: #1D4ED8;
   --primary-80: #2563EB;
   --primary-60: #3B82F6;
@@ -23,36 +24,77 @@
   --primary-20: #DBEAFE;
   --primary-10: #D0D5DF;
 
-  /* Semantic Mapping */
+  /* Semantic Mapping - Light Mode (Default) */
   --background: var(--neutral-white);
   --foreground: var(--neutral-100);
 
-  --primary: var(--primary-100);
+  --card: var(--neutral-white);
+  --card-foreground: var(--neutral-100);
+
+  --popover: var(--neutral-white);
+  --popover-foreground: var(--neutral-100);
+
+  --primary: var(--primary-80);
   --primary-foreground: var(--neutral-white);
 
   --secondary: var(--neutral-20);
   --secondary-foreground: var(--neutral-90);
 
-  --accent: var(--primary-20);
-  --accent-foreground: var(--primary-100);
-
   --muted: var(--neutral-20);
   --muted-foreground: var(--neutral-60);
 
-  --card: var(--neutral-white);
-  --card-foreground: var(--neutral-100);
+  --accent: var(--neutral-20);
+  --accent-foreground: var(--neutral-90);
+
+  --destructive: #EF4444;
+  --destructive-foreground: var(--neutral-white);
 
   --border: var(--neutral-30);
   --input: var(--neutral-30);
   --ring: var(--primary-80);
 
-  --radius: 0.75rem;
+  --radius: 10px;
+}
+
+.dark {
+  /* Semantic Mapping - Dark Mode */
+  /* Using the same palette but inverted logic where appropriate, 
+     or keeping strict brand colors if desired. 
+     For now, mapping to dark neutrals from the strict palette. */
+
+  --background: var(--neutral-100);
+  --foreground: var(--neutral-white);
+
+  --card: var(--neutral-90);
+  --card-foreground: var(--neutral-white);
+
+  --popover: var(--neutral-90);
+  --popover-foreground: var(--neutral-white);
+
+  --primary: var(--primary-80);
+  /* Keep brand color consistent */
+  --primary-foreground: var(--neutral-white);
+
+  --secondary: var(--neutral-80);
+  --secondary-foreground: var(--neutral-white);
+
+  --muted: var(--neutral-80);
+  --muted-foreground: var(--neutral-40);
+
+  --accent: var(--neutral-80);
+  --accent-foreground: var(--neutral-white);
+
+  --destructive: #EF4444;
+  --destructive-foreground: var(--neutral-white);
+
+  --border: var(--neutral-80);
+  --input: var(--neutral-80);
+  --ring: var(--primary-60);
 }
 
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
@@ -69,6 +111,12 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -77,12 +125,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -100,4 +146,14 @@ body {
   background: var(--muted-foreground);
   border-radius: 4px;
   opacity: 0.5;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
 }

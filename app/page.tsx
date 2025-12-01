@@ -5,8 +5,11 @@ import Link from "next/link";
 import NextImage from "next/image";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ui/product-card";
+import { Select } from "@/components/ui/select";
 import { Search, ArrowRight, ShieldCheck, Truck, Zap, Wrench, Disc, Activity, Car, Armchair, Battery } from "lucide-react";
 import { FadeIn, SlideUp, ScaleIn, StaggerContainer, StaggerItem } from "@/components/ui/motion-wrapper";
+import { useAuth } from "@/components/providers/AuthProvider";
+// import { useAuthState } from "@campnetwork/origin/react";
 
 // Mock Data
 const CATEGORIES = [
@@ -58,6 +61,9 @@ const FEATURED_PRODUCTS = [
 ];
 
 export default function Home() {
+  // const { authenticated } = useAuthState();
+  const authenticated = false; // Fallback
+  const { isAuthenticated } = useAuth();
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-[#111827] text-gray-900 dark:text-white transition-colors duration-300">
       {/* Hero Section */}
@@ -76,19 +82,51 @@ export default function Home() {
                   </p>
                 </SlideUp>
 
-                <SlideUp delay={0.2} className="flex flex-col sm:flex-row gap-4">
-                  <Link href="/catalog">
-                    <Button size="lg" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-semibold px-8 h-12 rounded-lg shadow-blue-200 dark:shadow-blue-900/20 shadow-lg">
-                      <Search className="mr-2 h-5 w-5" />
-                      Find Parts Now
-                    </Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-semibold px-8 h-12 rounded-lg">
-                      <Truck className="mr-2 h-5 w-5" />
-                      Sell Your Parts
-                    </Button>
-                  </Link>
+                <SlideUp delay={0.2} className="w-full max-w-xl">
+                  <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-white/20">
+                    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <Input
+                          placeholder="Search part name, number, or VIN..."
+                          className="h-12 pl-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-base"
+                        />
+                      </div>
+                      <Link href="/catalog">
+                        <Button size="lg" className="w-full md:w-auto h-12 px-8 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/20">
+                          Search
+                        </Button>
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                      <Select className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 h-10 text-sm">
+                        <option value="">Year</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                      </Select>
+                      <Select className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 h-10 text-sm">
+                        <option value="">Make</option>
+                        <option value="toyota">Toyota</option>
+                        <option value="honda">Honda</option>
+                        <option value="ford">Ford</option>
+                      </Select>
+                      <Select className="bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 h-10 text-sm">
+                        <option value="">Model</option>
+                        <option value="camry">Camry</option>
+                        <option value="corolla">Corolla</option>
+                        <option value="civic">Civic</option>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-center gap-4 text-sm">
+                    <span className="text-gray-500 dark:text-gray-400">Or:</span>
+                    <Link href="/register" className="font-semibold text-primary hover:underline flex items-center">
+                      Sell Your Parts <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </div>
                 </SlideUp>
 
                 {/* Trust Indicators */}
@@ -144,6 +182,7 @@ export default function Home() {
                     src="/icon-secure-payment.png"
                     alt="Secure Payment"
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-contain dark:invert"
                   />
                 </div>
@@ -160,6 +199,7 @@ export default function Home() {
                     src="/icon-delivery.png"
                     alt="Get Delivered"
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-contain dark:invert"
                   />
                 </div>
@@ -180,83 +220,105 @@ export default function Home() {
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Popular Spare Parts</h2>
           </SlideUp>
 
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Product 1 */}
-            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
-              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
-                <Wrench className="h-12 w-12 text-primary" />
-              </div>
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Engine Oil Filter</h3>
-                  <p className="text-primary font-bold mt-1">₦12,500</p>
-                  <p className="text-xs text-gray-400">≈ 0.008 ETH</p>
+          {authenticated || isAuthenticated ? (
+            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Product 1 */}
+              <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+                <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
+                  <Wrench className="h-12 w-12 text-primary" />
                 </div>
-                <Link href="/product/1" className="block w-full">
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                    View Details
-                  </Button>
-                </Link>
-              </div>
-            </StaggerItem>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Engine Oil Filter</h3>
+                    <p className="text-primary font-bold mt-1">₦12,500</p>
+                    <p className="text-xs text-gray-400">≈ 0.008 ETH</p>
+                  </div>
+                  <Link href="/product/1" className="block w-full">
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </StaggerItem>
 
-            {/* Product 2 */}
-            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
-              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
-                <Disc className="h-12 w-12 text-primary" />
-              </div>
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Brake Pads Set</h3>
-                  <p className="text-primary font-bold mt-1">₦28,000</p>
-                  <p className="text-xs text-gray-400">≈ 0.018 ETH</p>
+              {/* Product 2 */}
+              <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+                <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
+                  <Disc className="h-12 w-12 text-primary" />
                 </div>
-                <Link href="/product/2" className="block w-full">
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                    View Details
-                  </Button>
-                </Link>
-              </div>
-            </StaggerItem>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Brake Pads Set</h3>
+                    <p className="text-primary font-bold mt-1">₦28,000</p>
+                    <p className="text-xs text-gray-400">≈ 0.018 ETH</p>
+                  </div>
+                  <Link href="/product/2" className="block w-full">
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </StaggerItem>
 
-            {/* Product 3 */}
-            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
-              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
-                <Battery className="h-12 w-12 text-primary" />
-              </div>
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Car Battery 12V</h3>
-                  <p className="text-primary font-bold mt-1">₦45,000</p>
-                  <p className="text-xs text-gray-400">≈ 0.029 ETH</p>
+              {/* Product 3 */}
+              <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+                <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
+                  <Battery className="h-12 w-12 text-primary" />
                 </div>
-                <Link href="/product/3" className="block w-full">
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                    View Details
-                  </Button>
-                </Link>
-              </div>
-            </StaggerItem>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Car Battery 12V</h3>
+                    <p className="text-primary font-bold mt-1">₦45,000</p>
+                    <p className="text-xs text-gray-400">≈ 0.029 ETH</p>
+                  </div>
+                  <Link href="/product/3" className="block w-full">
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </StaggerItem>
 
-            {/* Product 4 */}
-            <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
-              <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
-                <Car className="h-12 w-12 text-primary" />
-              </div>
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm">Headlight Assembly</h3>
-                  <p className="text-primary font-bold mt-1">₦35,000</p>
-                  <p className="text-xs text-gray-400">≈ 0.022 ETH</p>
+              {/* Product 4 */}
+              <StaggerItem className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all duration-300">
+                <div className="bg-gray-100 dark:bg-gray-800 h-48 flex items-center justify-center transition-colors duration-300">
+                  <Car className="h-12 w-12 text-primary" />
                 </div>
-                <Link href="/product/4" className="block w-full">
-                  <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
-                    View Details
-                  </Button>
-                </Link>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">Headlight Assembly</h3>
+                    <p className="text-primary font-bold mt-1">₦35,000</p>
+                    <p className="text-xs text-gray-400">≈ 0.022 ETH</p>
+                  </div>
+                  <Link href="/product/4" className="block w-full">
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white font-medium h-9 text-sm">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </StaggerItem>
+            </StaggerContainer>
+          ) : (
+            <div className="text-center py-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+              <div className="max-w-md mx-auto space-y-4">
+                <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
+                  <ShieldCheck className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Sign in to View Products</h3>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Join our community of verified buyers and sellers to access exclusive deals and genuine parts.
+                </p>
+                <div className="flex gap-4 justify-center pt-2">
+                  <Link href="/login">
+                    <Button variant="outline" className="min-w-[120px]">Sign In</Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button className="min-w-[120px]">Create Account</Button>
+                  </Link>
+                </div>
               </div>
-            </StaggerItem>
-          </StaggerContainer>
+            </div>
+          )}
         </div>
       </section>
 

@@ -15,6 +15,8 @@ export default function CheckoutPage() {
     const [deliveryMethod, setDeliveryMethod] = useState("home");
     const [paymentType, setPaymentType] = useState("naira");
     const [paymentMethod, setPaymentMethod] = useState("card");
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const router = useRouter();
 
@@ -30,6 +32,24 @@ export default function CheckoutPage() {
         }
     }, [router]);
 
+    const handlePayment = () => {
+        setIsProcessing(true);
+
+        // Simulate payment processing
+        setTimeout(() => {
+            setIsProcessing(false);
+            setIsSuccess(true);
+
+            // Redirect after showing splash screen
+            setTimeout(() => {
+                const orderId = paymentType === "crypto"
+                    ? `ORD-${Date.now()}-CRYPTO`
+                    : `ORD-${Date.now()}-FIAT`;
+                router.push(`/order-confirmation/${orderId}`);
+            }, 3000); // Show splash for 3 seconds
+        }, 2000); // Process for 2 seconds
+    };
+
     if (isCheckingAuth) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -37,6 +57,20 @@ export default function CheckoutPage() {
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <p className="text-gray-500">Verifying session...</p>
                 </div>
+            </div>
+        );
+    }
+
+    // Splash Screen Overlay
+    if (isSuccess) {
+        return (
+            <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center animate-in fade-in duration-300">
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-in zoom-in duration-500 delay-150">
+                    <Check className="w-12 h-12 text-green-600" />
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2 animate-in slide-in-from-bottom-4 duration-500 delay-300">Payment Successful!</h1>
+                <p className="text-gray-500 mb-8 animate-in slide-in-from-bottom-4 duration-500 delay-400">Redirecting to your order details...</p>
+                <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -215,6 +249,46 @@ export default function CheckoutPage() {
                                 </button>
                             </div>
 
+                            {paymentType === "crypto" && (
+                                <div className="space-y-4">
+                                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                                <span className="font-bold text-primary">C</span>
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">Pay with CAMP Token</h3>
+                                                <p className="text-sm text-gray-600">Fast, secure blockchain payment</p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-600">Exchange Rate</span>
+                                                <span className="font-medium">1 CAMP ≈ ₦150.00</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-600">Network Fee</span>
+                                                <span className="font-medium text-green-600">~0.0001 ETH</span>
+                                            </div>
+                                            <div className="pt-3 border-t border-blue-100 flex justify-between items-center">
+                                                <span className="font-bold text-gray-900">Total to Pay</span>
+                                                <span className="font-bold text-xl text-primary">408.66 CAMP</span>
+                                            </div>
+                                        </div>
+                                        <Button
+                                            onClick={handlePayment}
+                                            disabled={isProcessing}
+                                            className="w-full mt-6 bg-primary hover:bg-primary/90 text-white font-bold h-12 rounded-xl"
+                                        >
+                                            {isProcessing ? "Processing..." : "Connect Wallet & Pay"}
+                                        </Button>
+                                    </div>
+                                    <p className="text-xs text-center text-gray-500">
+                                        By paying with crypto, you agree to the network gas fees.
+                                    </p>
+                                </div>
+                            )}
+
                             {paymentType === "naira" && (
                                 <div className="space-y-4">
                                     {/* Card Option */}
@@ -323,9 +397,15 @@ export default function CheckoutPage() {
                                 <Button variant="outline" className="w-full md:w-auto h-12 gap-2 font-bold text-gray-900 border-gray-200">
                                     <ChevronLeft className="w-4 h-4" /> Back to Cart
                                 </Button>
-                                <Button className="w-full md:w-auto h-12 bg-primary hover:bg-primary/90 text-white font-bold px-8 rounded-xl shadow-lg shadow-blue-600/20">
-                                    Complete Payment
-                                </Button>
+                                {paymentType === "naira" && (
+                                    <Button
+                                        onClick={handlePayment}
+                                        disabled={isProcessing}
+                                        className="w-full md:w-auto h-12 bg-primary hover:bg-primary/90 text-white font-bold px-8 rounded-xl shadow-lg shadow-blue-600/20"
+                                    >
+                                        {isProcessing ? "Processing..." : "Complete Payment"}
+                                    </Button>
+                                )}
                             </div>
                         </div>
 
@@ -399,6 +479,6 @@ export default function CheckoutPage() {
 
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

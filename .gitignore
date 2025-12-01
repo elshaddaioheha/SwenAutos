@@ -17,6 +17,11 @@
 /.next/
 /out/
 
+# Documentation
+# Documentation
+# *.md rules removed to allow documentation
+
+
 # production
 /build
 
@@ -41,11 +46,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Documentation
-*.md
-!README.md
-
 # Hardhat
 artifacts/
 cache/
 typechain-types/
+
+!.env.local

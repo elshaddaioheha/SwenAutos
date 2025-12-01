@@ -3,15 +3,21 @@
 import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { LoginButton } from "@/components/auth/LoginButton";
 
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectUrl = searchParams.get("redirect") || "/dashboard";
+    const { login } = useAuth();
 
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [role, setRole] = useState<"buyer" | "seller">("buyer");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -22,9 +28,22 @@ function LoginForm() {
         // Simulate API call
         setTimeout(() => {
             // Mock successful login
-            localStorage.setItem("isLoggedIn", "true");
+            login({
+                id: 'user-' + Date.now(),
+                name: email.split('@')[0], // Use part of email as name
+                email: email,
+                role: role
+            });
+
             setLoading(false);
-            router.push(redirectUrl);
+
+            // Redirect based on role
+            if (role === "seller") {
+                router.push("/dashboard");
+            } else {
+                // Buyers go to catalog/shop
+                router.push("/catalog");
+            }
         }, 1500);
     };
 
@@ -53,58 +72,88 @@ function LoginForm() {
                         </p>
                     </div>
 
-                    <form onSubmit={handleLogin} className="space-y-5">
+                    <div className="space-y-6">
+                        {/* Email/Password Form */}
+                        <form onSubmit={handleLogin} className="space-y-4">
 
-                        {/* Email Address */}
-                        <div className="space-y-1.5">
-                            <label className="text-gray-900 dark:text-white font-bold text-sm flex">
-                                Email Address
-                            </label>
-                            <Input
-                                type="email"
-                                placeholder="Enter your email address"
-                                className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                required
-                            />
-                        </div>
-
-                        {/* Password */}
-                        <div className="space-y-1.5">
-                            <div className="flex justify-between items-center">
-                                <label className="text-gray-900 dark:text-white font-bold text-sm flex">
-                                    Password
-                                </label>
-                                <Link href="/forgot-password" className="text-xs text-primary font-bold hover:underline">
-                                    Forgot Password?
-                                </Link>
-                            </div>
-                            <div className="relative">
-                                <Input
-                                    type={showPassword ? "text" : "password"}
-                                    className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 pr-10 text-gray-900 dark:text-white"
-                                    required
-                                />
+                            {/* Role Toggle */}
+                            <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6">
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                                    onClick={() => setRole("buyer")}
+                                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${role === "buyer"
+                                            ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
+                                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900"
+                                        }`}
                                 >
-                                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    Buyer
                                 </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setRole("seller")}
+                                    className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${role === "seller"
+                                            ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
+                                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900"
+                                        }`}
+                                >
+                                    Seller
+                                </button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-900 dark:text-white">Email Address</label>
+                                <Input
+                                    type="email"
+                                    placeholder="john@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    className="h-12 rounded-xl"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-900 dark:text-white">Password</label>
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        className="h-12 rounded-xl pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    >
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <Button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-xl shadow-lg shadow-blue-600/20"
+                            >
+                                {loading ? "Signing In..." : `Sign In as ${role === 'buyer' ? 'Buyer' : 'Seller'}`}
+                            </Button>
+                        </form>
+
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-gray-200 dark:border-gray-800" />
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-white dark:bg-gray-900 px-2 text-gray-500">
+                                    Or connect with wallet
+                                </span>
                             </div>
                         </div>
 
-                        {/* Sign In Button */}
-                        <Button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-xl mt-4 shadow-lg shadow-blue-600/20"
-                        >
-                            {loading ? "Signing in..." : "Sign In"}
-                            {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
-                        </Button>
-
-                    </form>
+                        <LoginButton redirectUrl={redirectUrl} />
+                    </div>
                 </div>
 
                 {/* Footer Link */}
