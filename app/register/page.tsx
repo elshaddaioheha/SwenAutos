@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/components/providers/AuthProvider";
+import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -53,37 +53,46 @@ export default function RegisterPage() {
         if (!isFormValid) return;
 
         setIsLoading(true);
-        // Simulate API call to send verification code
-        setTimeout(() => {
-            setIsLoading(false);
-            setStep(2);
-        }, 1500);
-    };
 
-    const handleVerify = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (verificationCode.length < 4) return;
-
-        setIsLoading(true);
-        // Simulate verification API call
-        setTimeout(() => {
-            setIsLoading(false);
-
-            // Login the user
-            login({
-                id: 'user-' + Date.now(),
-                name: fullName,
-                email: email,
-                role: role
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        role: role,
+                        phone: phone
+                    }
+                }
             });
 
-            // Redirect based on role
-            if (role === "seller") {
-                router.push("/dashboard"); // Or vendor onboarding
+            if (error) throw error;
+
+            if (data.session) {
+                // User is signed in (auto-confirm enabled)
+                router.push(role === 'seller' ? '/dashboard' : '/');
             } else {
-                router.push("/");
+                // User needs to verify email
+                // We can show a success message or move to a "Check Email" step
+                // For now, let's alert and redirect to login
+                alert("Account created successfully! Please check your email to verify your account.");
+                router.push('/login');
             }
-        }, 1500);
+
+        } catch (error: any) {
+            console.error("Registration failed:", error);
+            alert(error.message || "Failed to create account");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // handleVerify is no longer used in this simplified flow, but we keep the UI for now
+    // If we implement Phone OTP later, we can use it.
+    const handleVerify = async (e: React.FormEvent) => {
+        e.preventDefault();
+        // Placeholder for future Phone OTP verification
     };
 
     return (

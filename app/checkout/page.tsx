@@ -15,7 +15,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useAuthState } from "@campnetwork/origin/react";
 
 export default function CheckoutPage() {
-    const { isAuthenticated: localAuth } = useAuth();
+    const { isAuthenticated: localAuth, isLoading: localLoading } = useAuth();
     const { authenticated: web3Auth, loading: web3Loading } = useAuthState();
     const [deliveryMethod, setDeliveryMethod] = useState("home");
     const [paymentType, setPaymentType] = useState("naira");
@@ -26,8 +26,8 @@ export default function CheckoutPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Wait for Web3 auth to load
-        if (web3Loading) return;
+        // Wait for both auth providers to load
+        if (web3Loading || localLoading) return;
 
         const isLoggedIn = localAuth || web3Auth;
 
@@ -37,7 +37,7 @@ export default function CheckoutPage() {
         } else {
             setIsCheckingAuth(false);
         }
-    }, [localAuth, web3Auth, web3Loading, router]);
+    }, [localAuth, web3Auth, web3Loading, localLoading, router]);
 
     const handlePayment = () => {
         setIsProcessing(true);

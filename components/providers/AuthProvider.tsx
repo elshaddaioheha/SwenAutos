@@ -12,6 +12,7 @@ interface User {
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
+    isLoading: boolean;
     login: (userData: User) => void;
     logout: () => void;
     updateUser: (updates: Partial<User>) => void;
@@ -21,11 +22,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Load user from localStorage on mount
-    // SECURITY NOTE: In a production environment, authentication should be handled via
-    // HttpOnly cookies to prevent XSS attacks. localStorage is used here for demonstration
-    // purposes and simple client-side persistence only.
     useEffect(() => {
         const savedUser = localStorage.getItem('swenautos-user');
         if (savedUser) {
@@ -35,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.error('Failed to parse user from localStorage', error);
             }
         }
+        setIsLoading(false);
     }, []);
 
     const login = (userData: User) => {
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, updateUser }}>
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

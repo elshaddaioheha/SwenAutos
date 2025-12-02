@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LoginButton } from "@/components/auth/LoginButton";
+import { supabase } from "@/lib/supabase";
 
 function LoginForm() {
     const router = useRouter();
@@ -21,30 +22,37 @@ function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            // Mock successful login
-            login({
-                id: 'user-' + Date.now(),
-                name: email.split('@')[0], // Use part of email as name
-                email: email,
-                role: role
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
             });
 
-            setLoading(false);
+            if (error) throw error;
 
-            // Redirect based on role
-            if (role === "seller") {
+            // AuthProvider listener will update the user state automatically
+            // We just need to handle the redirect
+
+            // Redirect based on role (stored in metadata or profile)
+            // For now, assume role from state or metadata
+            const userRole = data.session?.user.user_metadata.role || role;
+
+            if (userRole === "seller") {
                 router.push("/dashboard");
             } else {
-                // Buyers go to catalog/shop
                 router.push("/catalog");
             }
-        }, 1500);
+
+        } catch (error: any) {
+            console.error("Login failed:", error);
+            alert(error.message || "Failed to sign in");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -82,8 +90,8 @@ function LoginForm() {
                                     type="button"
                                     onClick={() => setRole("buyer")}
                                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${role === "buyer"
-                                            ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
-                                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900"
+                                        ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
+                                        : "text-gray-500 dark:text-gray-400 hover:text-gray-900"
                                         }`}
                                 >
                                     Buyer
@@ -92,8 +100,8 @@ function LoginForm() {
                                     type="button"
                                     onClick={() => setRole("seller")}
                                     className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${role === "seller"
-                                            ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
-                                            : "text-gray-500 dark:text-gray-400 hover:text-gray-900"
+                                        ? "bg-white dark:bg-gray-700 text-primary shadow-sm"
+                                        : "text-gray-500 dark:text-gray-400 hover:text-gray-900"
                                         }`}
                                 >
                                     Seller
