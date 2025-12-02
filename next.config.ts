@@ -1,17 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["lucide-react"],
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-    ],
-  },
-  compress: true,
-  poweredByHeader: false,
+  // External packages that should not be bundled on the server
+  serverExternalPackages: ['pino', 'thread-stream', 'pino-pretty'],
+
+  // Transpile packages that need it
+  transpilePackages: ['@campnetwork/origin'],
 };
 
 export default nextConfig;

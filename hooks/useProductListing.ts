@@ -2,10 +2,11 @@ import { useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
 import { useViem } from '@campnetwork/origin/react';
 import { useState } from 'react';
-import ProductListingArtifact from '@/contracts/artifacts/contracts/ProductListingContract.sol/ProductListingContract.json';
+// import ProductListingArtifact from '@/contracts/artifacts/contracts/ProductListingContract.sol/ProductListingContract.json';
 import { CONTRACT_ADDRESSES } from '@/lib/campNetwork';
 
-const ABI = ProductListingArtifact.abi;
+// TODO: Replace with actual ABI once contracts are deployed
+const ABI = [] as any;
 const ADDRESS = CONTRACT_ADDRESSES.PRODUCT_LISTING as `0x${string}`;
 
 export function useProductListing() {

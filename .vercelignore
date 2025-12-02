@@ -1,0 +1,8 @@
+# Exclude test files from node_modules during builds
+**/node_modules/**/test/**
+**/node_modules/**/*.test.js
+**/node_modules/**/*.test.ts
+**/node_modules/**/*.test.mjs
+**/node_modules/**/*.spec.js
+**/node_modules/**/*.spec.ts
+**/node_modules/**/bench.js
