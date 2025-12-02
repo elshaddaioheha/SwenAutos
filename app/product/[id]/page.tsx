@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/components/providers/CartProvider";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useAuthState } from "@campnetwork/origin/react";
 import { Button } from "@/components/ui/button";
@@ -96,19 +97,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         }
     }, [router, unwrappedParams.id, localAuth, web3Auth, web3Loading, localLoading]);
 
-    if (isCheckingAuth) {
-        return (
-            <div className="flex items-center justify-center min-h-screen bg-white">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="relative w-16 h-16">
-                        <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-                        <div className="absolute inset-0 border-4 border-primary rounded-full border-t-transparent animate-spin"></div>
-                    </div>
-                    <p className="text-gray-500 font-medium animate-pulse">Loading Product...</p>
-                </div>
-            </div>
-        );
-    }
+    // Product pages are public — we removed the redirect check so users can preview without logging in.
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-background pb-20 transition-colors duration-300">
@@ -289,10 +278,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             </div>
 
                             <div className="flex gap-4">
-                                <Button variant="outline" className="flex-1 h-12 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-bold text-base">
+                                <Button variant="outline" className="flex-1 h-12 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-bold text-base" onClick={(e) => {
+                                    const loggedIn = localAuth || web3Auth;
+                                    if (!loggedIn) {
+                                        router.push(`/login?redirect=/product/${unwrappedParams.id}`);
+                                        return;
+                                    }
+                                    // Add to cart via provider
+                                    addItem({ id: PRODUCT.id, name: PRODUCT.name, price: PRODUCT.price, image: PRODUCT.images[0], quantity });
+                                }}>
                                     <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
                                 </Button>
-                                <Button className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base">
+                                <Button className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base" onClick={() => {
+                                    const loggedIn = localAuth || web3Auth;
+                                    if (!loggedIn) {
+                                        router.push(`/login?redirect=/product/${unwrappedParams.id}`);
+                                        return;
+                                    }
+                                    router.push(`/checkout?product=${PRODUCT.id}&qty=${quantity}`);
+                                }}>
                                     Buy with Crypto
                                 </Button>
                             </div>
