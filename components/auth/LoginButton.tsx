@@ -1,6 +1,8 @@
 "use client";
 
 import { useConnect, useAuthState } from "@campnetwork/origin/react";
+import { useAccount } from "wagmi";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Loader2, Wallet } from "lucide-react";
 import { useEffect } from "react";
@@ -13,14 +15,24 @@ interface LoginButtonProps {
 export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
     const { connect } = useConnect();
     const { authenticated, loading } = useAuthState();
+    const { address } = useAccount();
     const router = useRouter();
+    const { login } = useAuth();
 
     useEffect(() => {
-        if (authenticated) {
+        if (authenticated && address) {
+            // Sync with local AuthProvider
+            login({
+                id: address,
+                name: `User ${address.slice(0, 6)}`,
+                email: "", // Wallet users might not have email yet
+                role: "buyer" // Default to buyer for wallet login
+            });
+
             // User is authenticated, redirect
             router.push(redirectUrl);
         }
-    }, [authenticated, router, redirectUrl]);
+    }, [authenticated, address, router, redirectUrl, login]);
 
     const handleLogin = async () => {
         try {

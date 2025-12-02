@@ -11,7 +11,12 @@ import {
     Lock, Check, Truck, CreditCard, ChevronLeft, ShieldCheck, Building2, Smartphone
 } from "lucide-react";
 
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useAuthState } from "@campnetwork/origin/react";
+
 export default function CheckoutPage() {
+    const { isAuthenticated: localAuth } = useAuth();
+    const { authenticated: web3Auth, loading: web3Loading } = useAuthState();
     const [deliveryMethod, setDeliveryMethod] = useState("home");
     const [paymentType, setPaymentType] = useState("naira");
     const [paymentMethod, setPaymentMethod] = useState("card");
@@ -21,8 +26,10 @@ export default function CheckoutPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Check if user is logged in
-        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        // Wait for Web3 auth to load
+        if (web3Loading) return;
+
+        const isLoggedIn = localAuth || web3Auth;
 
         if (!isLoggedIn) {
             // Redirect to login if not authenticated
@@ -30,7 +37,7 @@ export default function CheckoutPage() {
         } else {
             setIsCheckingAuth(false);
         }
-    }, [router]);
+    }, [localAuth, web3Auth, web3Loading, router]);
 
     const handlePayment = () => {
         setIsProcessing(true);
