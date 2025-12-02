@@ -8,7 +8,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LoginButton } from "@/components/auth/LoginButton";
-import { supabase } from "@/lib/supabase";
 
 function LoginForm() {
     const router = useRouter();
@@ -21,38 +20,32 @@ function LoginForm() {
     const [role, setRole] = useState<"buyer" | "seller">("buyer");
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [remember, setRemember] = useState(true);
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
+        // Simulate API call
+        setTimeout(() => {
+            // Mock successful login
+            login({
+                id: 'user-' + Date.now(),
+                name: email.split('@')[0], // Use part of email as name
+                email: email,
+                role: role
             });
 
-            if (error) throw error;
+            setLoading(false);
 
-            // AuthProvider listener will update the user state automatically
-            // We just need to handle the redirect
-
-            // Redirect based on role (stored in metadata or profile)
-            // For now, assume role from state or metadata
-            const userRole = data.session?.user.user_metadata.role || role;
-
-            if (userRole === "seller") {
+            // Redirect based on role
+            if (role === "seller") {
                 router.push("/dashboard");
             } else {
+                // Buyers go to catalog/shop
                 router.push("/catalog");
             }
-
-        } catch (error: any) {
-            console.error("Login failed:", error);
-            alert(error.message || "Failed to sign in");
-        } finally {
-            setLoading(false);
-        }
+        }, 1500);
     };
 
     return (
@@ -138,6 +131,14 @@ function LoginForm() {
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
                                 </div>
+                            </div>
+
+                            <div className="flex items-center justify-between text-sm">
+                                <label className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                                    <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4" />
+                                    Remember me
+                                </label>
+                                <Link href="/forgot-password" className="text-primary font-bold hover:underline">Forgot password?</Link>
                             </div>
 
                             <Button

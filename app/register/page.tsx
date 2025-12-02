@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -19,6 +19,8 @@ export default function RegisterPage() {
 
     // Form State
     const [role, setRole] = useState<"buyer" | "seller">("buyer");
+    const [businessName, setBusinessName] = useState("");
+    const [verifyVia, setVerifyVia] = useState<"phone" | "email">("phone");
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
@@ -44,6 +46,8 @@ export default function RegisterPage() {
         fullName.length > 2 &&
         email.includes("@") &&
         phone.length > 5 &&
+        // For sellers we require a business name
+        (role === "buyer" ? true : businessName.length > 2) &&
         isPasswordValid &&
         doPasswordsMatch &&
         agreedToTerms;
@@ -53,46 +57,37 @@ export default function RegisterPage() {
         if (!isFormValid) return;
 
         setIsLoading(true);
-
-        try {
-            const { data, error } = await supabase.auth.signUp({
-                email,
-                password,
-                options: {
-                    data: {
-                        full_name: fullName,
-                        role: role,
-                        phone: phone
-                    }
-                }
-            });
-
-            if (error) throw error;
-
-            if (data.session) {
-                // User is signed in (auto-confirm enabled)
-                router.push(role === 'seller' ? '/dashboard' : '/');
-            } else {
-                // User needs to verify email
-                // We can show a success message or move to a "Check Email" step
-                // For now, let's alert and redirect to login
-                alert("Account created successfully! Please check your email to verify your account.");
-                router.push('/login');
-            }
-
-        } catch (error: any) {
-            console.error("Registration failed:", error);
-            alert(error.message || "Failed to create account");
-        } finally {
+        // Simulate API call to send verification code
+        setTimeout(() => {
             setIsLoading(false);
-        }
+            setStep(2);
+        }, 1500);
     };
 
-    // handleVerify is no longer used in this simplified flow, but we keep the UI for now
-    // If we implement Phone OTP later, we can use it.
     const handleVerify = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Placeholder for future Phone OTP verification
+        if (verificationCode.length < 4) return;
+
+        setIsLoading(true);
+        // Simulate verification API call
+        setTimeout(() => {
+            setIsLoading(false);
+
+            // Login the user
+            login({
+                id: 'user-' + Date.now(),
+                name: fullName,
+                email: email,
+                role: role
+            });
+
+            // Redirect based on role
+            if (role === "seller") {
+                router.push("/dashboard"); // Or vendor onboarding
+            } else {
+                router.push("/");
+            }
+        }, 1500);
     };
 
     return (
@@ -196,7 +191,20 @@ export default function RegisterPage() {
                                     />
                                 </div>
 
-                                {/* Phone Number */}
+                                                        {/* Verification method */}
+                                                        <div className="space-y-1.5">
+                                                                <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">Verify via</label>
+                                                                <div className="flex gap-3">
+                                                                    <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'phone' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
+                                                                        <input type="radio" name="verifyVia" value="phone" checked={verifyVia === 'phone'} onChange={() => setVerifyVia('phone')} className="mr-2" /> Phone
+                                                                    </label>
+                                                                    <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'email' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
+                                                                        <input type="radio" name="verifyVia" value="email" checked={verifyVia === 'email'} onChange={() => setVerifyVia('email')} className="mr-2" /> Email
+                                                                    </label>
+                                                                </div>
+                                                        </div>
+
+                                                        {/* Phone Number */}
                                 <div className="space-y-1.5">
                                     <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">
                                         Phone Number <span className="text-red-500 ml-1">*</span>
@@ -219,8 +227,8 @@ export default function RegisterPage() {
                                             className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 flex-1 text-gray-900 dark:text-white"
                                         />
                                     </div>
-                                    <p className="text-gray-500 dark:text-gray-400 text-[13px] font-manrope">
-                                        We'll send a verification code to this number
+                                        <p className="text-gray-500 dark:text-gray-400 text-[13px] font-manrope">
+                                        {verifyVia === 'phone' ? "We'll send a verification code to this number" : "We'll send a verification link/code to your email"}
                                     </p>
                                 </div>
 
@@ -306,7 +314,21 @@ export default function RegisterPage() {
                                     )}
                                 </div>
 
-                                {/* Terms Checkbox */}
+                                                                {/* Seller-specific business information */}
+                                                                {role === 'seller' && (
+                                                                    <div className="space-y-1.5">
+                                                                        <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">Business / Shop Name <span className="text-red-500 ml-1">*</span></label>
+                                                                        <Input
+                                                                                value={businessName}
+                                                                                onChange={(e) => setBusinessName(e.target.value)}
+                                                                                placeholder="Your shop or business name"
+                                                                                className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                                        />
+                                                                        <p className="text-gray-500 text-xs">This helps buyers find you and sets up your storefront identity.</p>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Terms Checkbox */}
                                 <div className="flex items-start gap-3 pt-2">
                                     <div className="flex items-center h-5">
                                         <input

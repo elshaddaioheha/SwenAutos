@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useAuthState } from "@campnetwork/origin/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -77,18 +79,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     const [activeImage, setActiveImage] = useState(0);
     const [priceCurrency, setPriceCurrency] = useState<"NGN" | "ETH">("NGN");
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    // use central auth provider
+    const { isAuthenticated: localAuth, isLoading: localLoading } = useAuth() as any;
+    const { authenticated: web3Auth, loading: web3Loading } = useAuthState();
 
     useEffect(() => {
-        const checkAuth = () => {
-            const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
-            if (!loggedIn) {
-                router.push(`/login?redirect=/product/${unwrappedParams.id}`);
-            } else {
-                setIsCheckingAuth(false);
-            }
-        };
-        checkAuth();
-    }, [router, unwrappedParams.id]);
+        // Wait for both auth providers to finish loading
+        if (web3Loading || localLoading) return;
+
+        const loggedIn = localAuth || web3Auth;
+
+        if (!loggedIn) {
+            router.push(`/login?redirect=/product/${unwrappedParams.id}`);
+        } else {
+            setIsCheckingAuth(false);
+        }
+    }, [router, unwrappedParams.id, localAuth, web3Auth, web3Loading, localLoading]);
 
     if (isCheckingAuth) {
         return (
