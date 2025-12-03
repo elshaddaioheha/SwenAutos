@@ -9,11 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthState } from '@campnetwork/origin/react';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { useCart } from '@/components/providers/CartProvider';
-import { useAuth } from '@/components/providers/AuthProvider';
 
 export function Navbar() {
     const { authenticated } = useAuthState();
-    const { isAuthenticated } = useAuth();
     const { totalItems } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
@@ -34,8 +32,8 @@ export function Navbar() {
                     <Link href="/" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
                         Home
                     </Link>
-                    <Link href="/catalog" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        Catalog
+                    <Link href="/shop" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                        Shop
                     </Link>
                     <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
                         About Us
@@ -60,17 +58,19 @@ export function Navbar() {
                         />
                     </div>
 
-                    {/* Cart Icon (Desktop) */}
-                    <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors relative p-2 rounded-full hover:bg-gray-100">
-                        <ShoppingCart className="h-5 w-5" />
-                        {totalItems > 0 && (
-                            <span className="absolute top-0 right-0 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
-                                {totalItems}
-                            </span>
-                        )}
-                    </Link>
+                    {/* Cart Icon (Desktop) - Only show for non-authenticated users and buyers */}
+                    {!authenticated && (
+                        <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors relative p-2 rounded-full hover:bg-gray-100">
+                            <ShoppingCart className="h-5 w-5" />
+                            {totalItems > 0 && (
+                                <span className="absolute top-0 right-0 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
+                                    {totalItems}
+                                </span>
+                            )}
+                        </Link>
+                    )}
 
-                    {authenticated || isAuthenticated ? (
+                    {authenticated ? (
                         <UserProfile />
                     ) : (
                         <div className="hidden md:flex items-center space-x-4">
@@ -127,22 +127,26 @@ export function Navbar() {
                                 Home
                             </Link>
                             <Link
-                                href="/catalog"
+                                href="/shop"
                                 className="text-base font-medium text-gray-600 hover:text-primary py-2"
                                 onClick={() => setIsMenuOpen(false)}
                             >
-                                Catalog
+                                Shop
                             </Link>
-                            <Link
-                                href="/cart"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2 flex items-center justify-between"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Cart
-                                <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold">
-                                    3 Items
-                                </span>
-                            </Link>
+                            {!authenticated && (
+                                <Link
+                                    href="/cart"
+                                    className="text-base font-medium text-gray-600 hover:text-primary py-2 flex items-center justify-between"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Cart
+                                    {totalItems > 0 && (
+                                        <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold">
+                                            {totalItems} Items
+                                        </span>
+                                    )}
+                                </Link>
+                            )}
                             <Link
                                 href="/about"
                                 className="text-base font-medium text-gray-600 hover:text-primary py-2"
@@ -165,7 +169,7 @@ export function Navbar() {
                                 Become a Vendor
                             </Link>
 
-                            {authenticated || isAuthenticated ? (
+                            {authenticated ? (
                                 <>
                                     <Link
                                         href="/dashboard"
@@ -180,7 +184,7 @@ export function Navbar() {
                                             className="w-full justify-center border-red-200 text-red-600 hover:bg-red-50"
                                             onClick={() => {
                                                 setIsMenuOpen(false);
-                                                // For now just redirect to home, real logout happens in wallet
+                                                // Wallet disconnect is handled by CAMP Network
                                                 router.push('/');
                                             }}
                                         >

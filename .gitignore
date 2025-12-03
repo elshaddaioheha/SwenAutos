@@ -52,3 +52,9 @@ cache/
 typechain-types/
 
 !.env.local
+
+# Ignore build output and temp dirs
+build_output.txt
+hardhat-sandbox-clean/
+CONVERSATION_SUMMARY.md
+PROJECT_REVIEW.md

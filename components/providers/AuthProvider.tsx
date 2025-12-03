@@ -1,6 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
+
+/**
+ * DEPRECATED: This AuthProvider is kept for backward compatibility only.
+ * All authentication is now handled via web3 wallet (CAMP Network) using useAuthState() from @campnetwork/origin/react
+ * 
+ * This file is no longer used and should be removed in a future refactor.
+ * Use `useAuthState()` from CAMP Network for all auth checks.
+ */
 
 interface User {
     id: string;
@@ -21,43 +29,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-
-    // Load user from localStorage on mount
-    useEffect(() => {
-        const savedUser = localStorage.getItem('swenautos-user');
-        if (savedUser) {
-            try {
-                setUser(JSON.parse(savedUser));
-            } catch (error) {
-                console.error('Failed to parse user from localStorage', error);
-            }
-        }
-        setIsLoading(false);
-    }, []);
-
-    const login = (userData: User) => {
-        setUser(userData);
-        localStorage.setItem('swenautos-user', JSON.stringify(userData));
-    };
-
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('swenautos-user');
-    };
-
-    const updateUser = (updates: Partial<User>) => {
-        setUser((prev) => {
-            if (!prev) return null;
-            const updatedUser = { ...prev, ...updates };
-            localStorage.setItem('swenautos-user', JSON.stringify(updatedUser));
-            return updatedUser;
-        });
-    };
-
+    // Web3 wallet auth is now the single source of truth
+    // This provider is kept as a no-op for backward compatibility
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, updateUser }}>
+        <AuthContext.Provider value={{ 
+            user: null, 
+            isAuthenticated: false, 
+            isLoading: false, 
+            login: () => {}, 
+            logout: () => {}, 
+            updateUser: () => {} 
+        }}>
             {children}
         </AuthContext.Provider>
     );

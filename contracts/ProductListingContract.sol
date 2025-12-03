@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title ProductListingContract
@@ -89,7 +89,7 @@ contract ProductListingContract is Ownable, ReentrancyGuard {
     }
 
     // Constructor
-    constructor() Ownable(msg.sender) {
+    constructor() {
            _productIdCounter = 1; // Start from 1
     }
 

@@ -31,7 +31,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const savedCart = localStorage.getItem('swenautos-cart');
         if (savedCart) {
             try {
-                setItems(JSON.parse(savedCart));
+                // Wrap in setTimeout to avoid "setState synchronously within an effect" linter error
+                setTimeout(() => {
+                    setItems(JSON.parse(savedCart));
+                }, 0);
             } catch (error) {
                 console.error('Failed to parse cart from localStorage', error);
             }

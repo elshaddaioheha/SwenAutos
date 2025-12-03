@@ -61,8 +61,8 @@ function CreateListingContent() {
                     <CardContent className="space-y-4">
                         <p className="text-sm text-gray-600 break-all">Transaction Hash: {hash}</p>
                         <div className="flex gap-4 justify-center">
-                            <Button onClick={() => router.push('/catalog')} variant="default">
-                                View Catalog
+                            <Button onClick={() => router.push('/shop')} variant="default">
+                                View Shop
                             </Button>
                             <Button onClick={() => window.location.reload()} variant="outline">
                                 Create Another
@@ -75,110 +75,116 @@ function CreateListingContent() {
     }
 
     return (
-        <div className="container max-w-2xl mx-auto py-10 px-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Create New Listing</CardTitle>
-                    <CardDescription>List your spare part on the SwenAutos marketplace.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Product Name</Label>
-                            <Input
-                                id="name"
-                                name="name"
-                                placeholder="e.g. Toyota Camry Brake Pads"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="category">Category</Label>
-                            <Input
-                                id="category"
-                                name="category"
-                                placeholder="e.g. Brakes, Engine, Suspension"
-                                value={formData.category}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea
-                                id="description"
-                                name="description"
-                                placeholder="Describe the condition and compatibility..."
-                                value={formData.description}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+        <ProtectedRoute requireSeller={true}>
+            <div className="container max-w-2xl mx-auto py-10 px-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Create New Listing</CardTitle>
+                        <CardDescription>List your spare part on the SwenAutos marketplace.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="price">Price (CAMP/ETH)</Label>
+                                <Label htmlFor="name">Product Name</Label>
                                 <Input
-                                    id="price"
-                                    name="price"
-                                    type="number"
-                                    step="0.000001"
-                                    placeholder="0.05"
-                                    value={formData.price}
+                                    id="name"
+                                    name="name"
+                                    placeholder="e.g. Toyota Camry Brake Pads"
+                                    value={formData.name}
                                     onChange={handleChange}
                                     required
                                 />
                             </div>
+
                             <div className="space-y-2">
-                                <Label htmlFor="inventory">Inventory Quantity</Label>
+                                <Label htmlFor="category">Category</Label>
                                 <Input
-                                    id="inventory"
-                                    name="inventory"
-                                    type="number"
-                                    placeholder="10"
-                                    value={formData.inventory}
+                                    id="category"
+                                    name="category"
+                                    placeholder="e.g. Brakes, Engine, Suspension"
+                                    value={formData.category}
                                     onChange={handleChange}
                                     required
                                 />
                             </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="ipfsHash">Image URL (Optional)</Label>
-                            <Input
-                                id="ipfsHash"
-                                name="ipfsHash"
-                                placeholder="https://..."
-                                value={formData.ipfsHash}
-                                onChange={handleChange}
-                            />
-                            <p className="text-xs text-gray-500">Enter a direct image URL for now.</p>
-                        </div>
-
-                        {error && (
-                            <div className="p-3 bg-red-50 text-red-600 text-sm rounded-md">
-                                Error: {error.message}
+                            <div className="space-y-2">
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    placeholder="Describe the condition and compatibility..."
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
-                        )}
 
-                        <Button type="submit" className="w-full font-bold" disabled={isPending || isConfirming}>
-                            {isPending || isConfirming ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    {isConfirming ? "Confirming..." : "Waiting for Wallet..."}
-                                </>
-                            ) : (
-                                "Create Listing"
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="price">Price (CAMP Tokens)</Label>
+                                    <Input
+                                        id="price"
+                                        name="price"
+                                        placeholder="0.001"
+                                        type="number"
+                                        step="0.0001"
+                                        value={formData.price}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="inventory">Inventory</Label>
+                                    <Input
+                                        id="inventory"
+                                        name="inventory"
+                                        placeholder="100"
+                                        type="number"
+                                        value={formData.inventory}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="ipfsHash">IPFS Hash (Optional)</Label>
+                                <Input
+                                    id="ipfsHash"
+                                    name="ipfsHash"
+                                    placeholder="QmXxx..."
+                                    value={formData.ipfsHash}
+                                    onChange={handleChange}
+                                />
+                            </div>
+
+                            {error && (
+                                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                                    <p className="text-sm text-red-800">{error.message}</p>
+                                </div>
                             )}
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
+
+                            <Button
+                                type="submit"
+                                disabled={isPending || isConfirming}
+                                className="w-full"
+                            >
+                                {isPending || isConfirming ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        {isPending ? "Submitting..." : "Confirming..."}
+                                    </>
+                                ) : (
+                                    "Create Listing"
+                                )}
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+            </div>
+        </ProtectedRoute>
     );
 }
 

@@ -4,14 +4,15 @@ const nextConfig: NextConfig = {
   // External packages that should not be bundled on the server
   serverExternalPackages: [
     'pino',
-    'thread-stream',
     'pino-pretty',
+    'thread-stream',
     'valtio',
     'derive-valtio',
+    'tape',
+    '@walletconnect/universal-provider',
+    '@walletconnect/ethereum-provider',
+    '@campnetwork/origin',
   ],
-
-  // Transpile packages that need it
-  transpilePackages: ['@campnetwork/origin'],
 };
 
 export default nextConfig;
