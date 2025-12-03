@@ -13,6 +13,7 @@ import {
     MapPin, Award, Box, Zap, Layers, Circle, Armchair, Disc, Activity
 } from "lucide-react";
 import { PayWithFiatWrapper } from "@/components/payment/PayWithFiatWrapper";
+import LoginModal from "@/components/auth/LoginModal";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -75,11 +76,14 @@ const RELATED_PRODUCTS = [
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const unwrappedParams = React.use(params);
     const router = useRouter();
+    const { addItem } = useCart();
     const [activeTab, setActiveTab] = useState("description");
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState(0);
     const [priceCurrency, setPriceCurrency] = useState<"NGN" | "ETH">("NGN");
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const [loginAction, setLoginAction] = useState<"add" | "buy" | null>(null);
     // use central auth provider
     const { isAuthenticated: localAuth, isLoading: localLoading } = useAuth() as any;
     const { authenticated: web3Auth, loading: web3Loading } = useAuthState();
@@ -281,18 +285,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                                 <Button variant="outline" className="flex-1 h-12 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 font-bold text-base" onClick={(e) => {
                                     const loggedIn = localAuth || web3Auth;
                                     if (!loggedIn) {
-                                        router.push(`/login?redirect=/product/${unwrappedParams.id}`);
+                                        setLoginAction('add');
+                                        setShowLoginModal(true);
                                         return;
                                     }
                                     // Add to cart via provider
-                                    addItem({ id: PRODUCT.id, name: PRODUCT.name, price: PRODUCT.price, image: PRODUCT.images[0], quantity });
+                                    addItem({ id: PRODUCT.id, name: PRODUCT.name, price: PRODUCT.price, image: PRODUCT.images[0] });
                                 }}>
                                     <ShoppingCart className="h-5 w-5 mr-2" /> Add to Cart
                                 </Button>
                                 <Button className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base" onClick={() => {
                                     const loggedIn = localAuth || web3Auth;
                                     if (!loggedIn) {
-                                        router.push(`/login?redirect=/product/${unwrappedParams.id}`);
+                                        setLoginAction('buy');
+                                        setShowLoginModal(true);
                                         return;
                                     }
                                     router.push(`/checkout?product=${PRODUCT.id}&qty=${quantity}`);
@@ -307,6 +313,26 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                                 />
                             </div>
                         </div>
+                        {showLoginModal && (
+                            <React.Suspense>
+                                {/* Lazy load modal in place */}
+                                {/* @ts-ignore */}
+                                <LoginModal
+                                    isOpen={showLoginModal}
+                                    onClose={() => setShowLoginModal(false)}
+                                    returnUrl={`/product/${unwrappedParams.id}`}
+                                    onSuccess={() => {
+                                        setShowLoginModal(false);
+                                        if (loginAction === 'add') {
+                                            addItem({ id: PRODUCT.id, name: PRODUCT.name, price: PRODUCT.price, image: PRODUCT.images[0] });
+                                        } else if (loginAction === 'buy') {
+                                            router.push(`/checkout?product=${PRODUCT.id}&qty=${quantity}`);
+                                        }
+                                        setLoginAction(null);
+                                    }}
+                                />
+                            </React.Suspense>
+                        )}
 
                         {/* Seller Card */}
                         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 flex items-center justify-between transition-colors duration-300">

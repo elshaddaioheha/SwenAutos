@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CampProvider } from '@campnetwork/origin/react';
 import { baseCampTestnet } from '@/lib/campNetwork';
 import { injected, walletConnect } from 'wagmi/connectors';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 // Configure Wagmi
 const config = createConfig({
@@ -24,6 +24,14 @@ const config = createConfig({
 const queryClient = new QueryClient();
 
 export function Web3Provider({ children }: { children: ReactNode }) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
+
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>

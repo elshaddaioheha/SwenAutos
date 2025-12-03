@@ -2,11 +2,10 @@ import { useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
 import { useViem } from '@campnetwork/origin/react';
 import { useState } from 'react';
-// import ProductListingArtifact from '@/contracts/artifacts/contracts/ProductListingContract.sol/ProductListingContract.json';
+import ProductListingArtifact from '@/contracts/artifacts/contracts/ProductListingContract.sol/ProductListingContract.json';
 import { CONTRACT_ADDRESSES } from '@/lib/campNetwork';
 
-// TODO: Replace with actual ABI once contracts are deployed
-const ABI = [] as any;
+const ABI = ProductListingArtifact.abi;
 const ADDRESS = CONTRACT_ADDRESSES.PRODUCT_LISTING as `0x${string}`;
 
 export function useProductListing() {
@@ -75,6 +74,36 @@ export function useAllProducts(offset: number = 0, limit: number = 10) {
 
     return {
         products: data as any[],
+        isError,
+        isLoading
+    };
+}
+
+export function useSellerProducts(sellerAddress: string) {
+    const { data, isError, isLoading } = useReadContract({
+        address: ADDRESS,
+        abi: ABI,
+        functionName: 'getSellerProducts',
+        args: [sellerAddress],
+    });
+
+    return {
+        productIds: data as bigint[],
+        isError,
+        isLoading
+    };
+}
+
+export function useProduct(productId: number) {
+    const { data, isError, isLoading } = useReadContract({
+        address: ADDRESS,
+        abi: ABI,
+        functionName: 'getProduct',
+        args: [BigInt(productId)],
+    });
+
+    return {
+        product: data as any,
         isError,
         isLoading
     };

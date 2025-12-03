@@ -8,6 +8,8 @@ import { User, Lock, Mail, Store, Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+
 export default function SettingsPage() {
     const { user, updateUser } = useAuth();
     const [activeTab, setActiveTab] = useState<"profile" | "security" | "role">("profile");

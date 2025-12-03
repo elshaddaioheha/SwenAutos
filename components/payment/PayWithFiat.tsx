@@ -12,12 +12,7 @@ interface PayWithFiatProps {
 }
 
 export function PayWithFiat({ email, amount, onSuccess, onClose }: PayWithFiatProps) {
-    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
-
-    if (!publicKey) {
-        console.error("Paystack public key not found");
-        return null;
-    }
+    const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "";
 
     const config = {
         reference: (new Date()).getTime().toString(),
@@ -27,6 +22,11 @@ export function PayWithFiat({ email, amount, onSuccess, onClose }: PayWithFiatPr
     };
 
     const initializePayment = usePaystackPayment(config);
+
+    if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
+        console.error("Paystack public key not found");
+        return null;
+    }
 
     const handlePayment = () => {
         initializePayment({

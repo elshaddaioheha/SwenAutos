@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 // Counters removed; using uint256 counters
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./EscrowContract.sol";
 
 /**
@@ -77,7 +77,7 @@ contract RatingContract is Ownable, ReentrancyGuard {
     }
 
     // Constructor
-    constructor(address escrowContractAddress) Ownable(msg.sender) {
+    constructor(address escrowContractAddress) {
         require(escrowContractAddress != address(0), "Invalid Escrow contract address");
         escrowContract = EscrowContract(escrowContractAddress);
     _ratingIdCounter = 1; // Start from 1

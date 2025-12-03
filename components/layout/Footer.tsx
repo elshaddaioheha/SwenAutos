@@ -12,7 +12,7 @@ export function Footer() {
                         <ul className="space-y-2 text-gray-400 text-sm">
                             <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
                             <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
-                            <li><Link href="/trust" className="hover:text-white transition-colors">Trust & Safety</Link></li>
+                            <li><Link href="/trust-and-safety" className="hover:text-white transition-colors">Trust & Safety</Link></li>
                             <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
                         </ul>
                     </div>
@@ -24,7 +24,7 @@ export function Footer() {
                             <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
                             <li><Link href="/faq" className="hover:text-white transition-colors">FAQ</Link></li>
                             <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
-                            <li><Link href="/dispute" className="hover:text-white transition-colors">Dispute Resolution</Link></li>
+                            <li><Link href="/dispute-resolution" className="hover:text-white transition-colors">Dispute Resolution</Link></li>
                         </ul>
                     </div>
 
@@ -32,9 +32,9 @@ export function Footer() {
                     <div className="space-y-4">
                         <h3 className="font-bold text-lg">Legal</h3>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-                            <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                            <li><Link href="/cookie" className="hover:text-white transition-colors">Cookie Policy</Link></li>
+                            <li><Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                            <li><Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                            <li><Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link></li>
                             <li><Link href="/seller-agreement" className="hover:text-white transition-colors">Seller Agreement</Link></li>
                         </ul>
                     </div>

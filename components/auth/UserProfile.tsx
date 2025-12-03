@@ -1,9 +1,8 @@
 "use client";
 
 import { useAuth as useOriginAuth, useAuthState } from "@campnetwork/origin/react";
-import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { User, LogOut, Settings, LayoutDashboard, Package, PlusCircle } from "lucide-react";
+import { User, LogOut, Settings, LayoutDashboard, Package, PlusCircle, Store } from "lucide-react";
 import Link from "next/link";
 import NextImage from "next/image";
 import {
@@ -16,23 +15,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function UserProfile() {
-    // Web3 Auth
+    // Web3 Auth only - single source of truth
     const { authenticated: web3Authenticated, loading: web3Loading } = useAuthState();
     const originAuth = useOriginAuth();
     const web3User = (originAuth as any)?.user || (originAuth as any);
 
-    // Web2 Auth
-    const { user: localUser, isAuthenticated: localAuthenticated, logout } = useAuth();
-
     const isLoading = web3Loading;
-    const isAuthenticated = web3Authenticated || localAuthenticated;
+    const isAuthenticated = web3Authenticated;
 
-    // Determine which user data to display
-    const displayUser = localAuthenticated ? {
-        name: localUser?.name || "User",
-        image: null, // Local user image support can be added later
-        subtitle: localUser?.email || localUser?.role
-    } : {
+    // User data comes only from web3
+    const displayUser = {
         name: web3User?.metadata?.name || "Anonymous User",
         image: web3User?.metadata?.image,
         subtitle: web3User?.address ? `${web3User.address.slice(0, 6)}...${web3User.address.slice(-4)}` : "Connected via Wallet"
@@ -81,39 +73,51 @@ export function UserProfile() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                
+                {/* Buyer/Seller role detection will be added here from contract data */}
+                {/* For now, all authenticated users see seller options */}
                 <DropdownMenuItem asChild>
                     <Link href="/dashboard" className="cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
                     </Link>
                 </DropdownMenuItem>
-                {(localUser?.role === 'seller' || web3Authenticated) && (
-                    <DropdownMenuItem asChild>
-                        <Link href="/dashboard/create-listing" className="cursor-pointer">
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            <span>Create Listing</span>
-                        </Link>
-                    </DropdownMenuItem>
-                )}
+                
+                <DropdownMenuItem asChild>
+                    <Link href="/dashboard/listings" className="cursor-pointer">
+                        <Store className="mr-2 h-4 w-4" />
+                        <span>My Listings</span>
+                    </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                    <Link href="/dashboard/create-listing" className="cursor-pointer">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <span>Create Listing</span>
+                    </Link>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
                     <Link href="/dashboard/orders" className="cursor-pointer">
                         <Package className="mr-2 h-4 w-4" />
                         <span>My Orders</span>
                     </Link>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem asChild>
                     <Link href="/dashboard/settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
                     </Link>
                 </DropdownMenuItem>
+                
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={() => {
-                    logout();
+                    // CAMP Network handles wallet disconnect
                     window.location.href = "/";
                 }}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Disconnect Wallet</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

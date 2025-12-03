@@ -13,11 +13,13 @@ import {
 
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useAuthState } from "@campnetwork/origin/react";
+import DeliveryOptions from "@/components/checkout/DeliveryOptions";
 
 export default function CheckoutPage() {
     const { isAuthenticated: localAuth, isLoading: localLoading } = useAuth();
     const { authenticated: web3Auth, loading: web3Loading } = useAuthState();
     const [deliveryMethod, setDeliveryMethod] = useState("home");
+    const [deliveryFee, setDeliveryFee] = useState<number>(2500);
     const [paymentType, setPaymentType] = useState("naira");
     const [paymentMethod, setPaymentMethod] = useState("card");
     const [isProcessing, setIsProcessing] = useState(false);
@@ -146,92 +148,14 @@ export default function CheckoutPage() {
                     {/* Left Column: Forms */}
                     <div className="lg:col-span-2 space-y-8">
 
-                        {/* Delivery Method */}
+                        {/* Delivery Method - use DeliveryOptions component for simpler integration */}
                         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 transition-colors duration-300">
-                            <h2 className="text-xl font-bold text-gray-900 mb-6">Choose Delivery Method</h2>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <button
-                                    onClick={() => setDeliveryMethod("home")}
-                                    className={`p-4 rounded-xl border-2 text-left transition-all relative ${deliveryMethod === "home" ? "border-primary bg-blue-50" : "border-gray-200 hover:border-gray-300"
-                                        }`}
-                                >
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${deliveryMethod === "home" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"
-                                            }`}>
-                                            <Truck className="w-5 h-5" />
-                                        </div>
-                                        {deliveryMethod === "home" && (
-                                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                                                <div className="w-2 h-2 rounded-full bg-white" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 mb-1">Home Delivery</h3>
-                                    <p className="text-sm text-gray-500 mb-2">Get parts delivered to your address</p>
-                                    <div className="flex justify-between items-end">
-                                        <span className="text-xs text-gray-500">3-5 business days</span>
-                                        <span className="font-bold text-gray-900">From ₦2,500</span>
-                                    </div>
-                                </button>
-
-                                <button
-                                    onClick={() => setDeliveryMethod("pickup")}
-                                    className={`p-4 rounded-xl border-2 text-left transition-all relative ${deliveryMethod === "pickup" ? "border-primary bg-blue-50" : "border-gray-200 hover:border-gray-300"
-                                        }`}
-                                >
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${deliveryMethod === "pickup" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"
-                                            }`}>
-                                            <Building2 className="w-5 h-5" />
-                                        </div>
-                                        {deliveryMethod === "pickup" && (
-                                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                                                <div className="w-2 h-2 rounded-full bg-white" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <h3 className="font-bold text-gray-900 mb-1">Pickup from Seller</h3>
-                                    <p className="text-sm text-gray-500 mb-2">Collect parts directly</p>
-                                    <div className="flex justify-between items-end">
-                                        <span className="text-xs text-gray-500">Available immediately</span>
-                                        <span className="font-bold text-green-500">Free</span>
-                                    </div>
-                                </button>
-                            </div>
-
-                            {/* Address Form */}
-                            {deliveryMethod === "home" && (
-                                <div className="mt-8 space-y-4 pt-8 border-t border-gray-100">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1.5">
-                                            <label className="text-sm font-bold text-gray-900">State</label>
-                                            <select className="w-full h-11 rounded-lg border border-gray-200 px-3 bg-white text-sm outline-none focus:border-primary text-gray-900 transition-colors">
-                                                <option>Lagos</option>
-                                                <option>Abuja</option>
-                                            </select>
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-sm font-bold text-gray-900">City</label>
-                                            <select className="w-full h-11 rounded-lg border border-gray-200 px-3 bg-white text-sm outline-none focus:border-primary text-gray-900 transition-colors">
-                                                <option>Ikeja</option>
-                                                <option>Lekki</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-gray-900">Street Address</label>
-                                        <Input placeholder="e.g. 123 Admiralty Way" className="h-11 bg-white border-gray-200" />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-sm font-bold text-gray-900">Phone Number</label>
-                                        <Input placeholder="+234..." className="h-11 bg-white border-gray-200" />
-                                    </div>
-                                    <div className="flex items-center gap-2 pt-2">
-                                        <Checkbox id="save-address" />
-                                        <label htmlFor="save-address" className="text-sm text-gray-900">Save this address for future orders</label>
-                                    </div>
-                                </div>
-                            )}
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Delivery</h2>
+                            <DeliveryOptions onChange={(opts) => {
+                                setDeliveryMethod(opts.method === "delivery" ? "home" : "pickup")
+                                // if DeliveryOptions provides fee in USD, convert to Naira later — here we use numeric
+                                setDeliveryFee(opts.fee ? Math.round(opts.fee * 250) : 0) // example conversion for display
+                            }} />
                         </div>
 
                         {/* Payment Method */}
@@ -451,11 +375,11 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="flex justify-between text-sm">
                                     <span className="text-gray-500">Delivery Fee</span>
-                                    <span className="font-bold text-gray-900">₦2,500</span>
+                                    <span className="font-bold text-gray-900">₦{deliveryFee.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-lg pt-2 border-t border-gray-100 transition-colors">
                                     <span className="font-bold text-gray-900">Total</span>
-                                    <span className="font-bold text-primary">₦61,300</span>
+                                    <span className="font-bold text-primary">₦{(58800 + deliveryFee).toLocaleString()}</span>
                                 </div>
                             </div>
 

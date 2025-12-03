@@ -1,208 +1,232 @@
 "use client";
 
 import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-    Search, ShoppingCart, Star, Check, Car, MapPin,
-    Grid, List, ChevronDown, Filter, ChevronRight, SlidersHorizontal,
-    Disc, Activity, Zap, Layers, Armchair, Circle, Settings, Package
+    BarChart3, Package, TrendingUp, DollarSign, Clock, CheckCircle,
+    AlertCircle, ChevronRight, Eye, Edit, Trash2, Plus
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-import { useCart } from "@/components/providers/CartProvider";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-export default function DashboardPage() {
+/**
+ * Seller Dashboard
+ * Overview of seller's business: recent orders, earnings, listings, and quick actions
+ */
+
+export default function SellerDashboard() {
     return (
-        <div className="min-h-screen bg-[#F8F8F5] pb-20">
-
-            {/* Hero / Welcome Section */}
-            <div className="bg-gradient-to-br from-[#1D4ED8] to-[#3B82F6] text-white pt-16 pb-24 px-4 md:px-6">
-                <div className="container mx-auto flex flex-col items-center text-center">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-3">Welcome back, Chukwuemeka!</h1>
-                    <p className="text-white/90 text-lg mb-8">Find the perfect spare part for your vehicle</p>
-
-                    {/* Search Bar */}
-                    <div className="w-full max-w-2xl relative">
-                        <div className="relative">
-                            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <Input
-                                placeholder="Search by part name, number, or vehicle..."
-                                className="w-full pl-12 pr-12 h-14 rounded-xl text-gray-900 bg-white border-0 shadow-lg focus-visible:ring-0 placeholder:text-gray-400"
-                            />
-                            <button className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#1D4ED8] transition-colors">
-                                <SlidersHorizontal className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        {/* Quick Links */}
-                        <div className="flex flex-wrap justify-center gap-3 mt-6">
-                            {["Engine Oil", "Brake Pads", "Air Filters", "Batteries"].map((item) => (
-                                <button key={item} className="bg-white/20 hover:bg-white/30 text-white px-5 py-2 rounded-full text-sm font-medium backdrop-blur-sm transition-colors">
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="mt-8">
-                            <Link href="/dashboard/create-listing">
-                                <Button size="lg" className="bg-white text-[#1D4ED8] hover:bg-gray-100 font-bold shadow-lg border-2 border-transparent hover:border-white/50">
-                                    <Package className="mr-2 h-5 w-5" />
-                                    Sell a Part
-                                </Button>
-                            </Link>
-                        </div>
+        <ProtectedRoute requireSeller={true}>
+            <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white pt-8 pb-6">
+                    <div className="container mx-auto px-4 md:px-6">
+                        <h1 className="text-3xl md:text-4xl font-bold mb-2">Seller Dashboard</h1>
+                        <p className="text-blue-100">Manage your listings, orders, and earnings</p>
                     </div>
                 </div>
-            </div>
 
-            <div className="container mx-auto px-4 md:px-6 mt-12">
-
-                {/* Browse by Category */}
-                <div className="mb-12">
-                    <h2 className="text-2xl font-bold text-[#111827] mb-6">Browse by Category</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[
-                            { name: "Engine Parts", icon: Car },
-                            { name: "Brake System", icon: Disc },
-                            { name: "Suspension", icon: Activity },
-                            { name: "Electrical", icon: Zap },
-                            { name: "Body Parts", icon: Layers },
-                            { name: "Interior", icon: Armchair },
-                            { name: "Wheels & Tires", icon: Circle },
-                            { name: "Accessories", icon: Settings },
-                        ].map((cat) => (
-                            <Link href="/shop" key={cat.name} className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#1D4ED8] transition-all group flex flex-col items-center text-center gap-4">
-                                <div className="h-12 w-12 rounded-full bg-[#1D4ED8]/10 flex items-center justify-center group-hover:bg-[#1D4ED8] transition-colors">
-                                    <cat.icon className="h-6 w-6 text-[#1D4ED8] group-hover:text-white transition-colors" />
+                {/* Main Content */}
+                <div className="container mx-auto px-4 md:px-6 py-8">
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-medium text-gray-600">Total Listings</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-baseline justify-between">
+                                    <div className="text-3xl font-bold text-gray-900">12</div>
+                                    <Package className="h-5 w-5 text-blue-500" />
                                 </div>
-                                <span className="font-bold text-[#111827] group-hover:text-[#1D4ED8] transition-colors">{cat.name}</span>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
+                                <p className="text-xs text-gray-500 mt-2">3 active, 9 sold</p>
+                            </CardContent>
+                        </Card>
 
-                {/* Popular Spare Parts */}
-                <div>
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold text-[#111827]">Popular Spare Parts</h2>
-                        <Link href="/shop" className="text-[#1D4ED8] font-bold hover:underline flex items-center gap-1">
-                            View All <ChevronRight className="h-4 w-4" />
-                        </Link>
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-baseline justify-between">
+                                    <div className="text-3xl font-bold text-gray-900">28</div>
+                                    <BarChart3 className="h-5 w-5 text-green-500" />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">5 pending delivery</p>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-medium text-gray-600">Total Earnings</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-baseline justify-between">
+                                    <div className="text-3xl font-bold text-gray-900">₦450K</div>
+                                    <TrendingUp className="h-5 w-5 text-purple-500" />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">This month</p>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-medium text-gray-600">Seller Rating</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-baseline justify-between">
+                                    <div className="text-3xl font-bold text-gray-900">4.8</div>
+                                    <DollarSign className="h-5 w-5 text-yellow-500" />
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">Based on 156 reviews</p>
+                            </CardContent>
+                        </Card>
                     </div>
 
-                    {/* Filters */}
-                    <div className="flex flex-wrap gap-3 mb-8 overflow-x-auto pb-2">
-                        <button className="bg-[#1D4ED8] text-white px-5 py-2 rounded-full text-sm font-bold shadow-sm">
-                            All Parts
-                        </button>
-                        {["OEM Only", "Aftermarket", "New", "Used"].map((filter) => (
-                            <button key={filter} className="bg-white border border-gray-200 text-[#111827] hover:border-[#1D4ED8] hover:text-[#1D4ED8] px-5 py-2 rounded-full text-sm font-bold transition-colors">
-                                {filter}
-                            </button>
-                        ))}
-                        <div className="ml-auto flex gap-3">
-                            <select className="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium outline-none focus:border-[#1D4ED8]">
-                                <option>Vehicle Type</option>
-                            </select>
-                            <select className="bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm font-medium outline-none focus:border-[#1D4ED8]">
-                                <option>Price Range</option>
-                            </select>
-                            <Button variant="outline" className="border-[#1D4ED8] text-[#1D4ED8] hover:bg-[#1D4ED8]/5 gap-2">
-                                <SlidersHorizontal className="h-4 w-4" /> More Filters
-                            </Button>
-                        </div>
+                    {/* Quick Actions */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <Card className="md:col-span-3">
+                            <CardHeader>
+                                <CardTitle>Quick Actions</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex flex-col sm:flex-row gap-3">
+                                <Link href="/dashboard/create-listing" className="flex-1">
+                                    <Button className="w-full" size="sm">
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Create New Listing
+                                    </Button>
+                                </Link>
+                                <Link href="/dashboard/orders" className="flex-1">
+                                    <Button variant="outline" className="w-full" size="sm">
+                                        <Package className="mr-2 h-4 w-4" />
+                                        View Orders
+                                    </Button>
+                                </Link>
+                                <Link href="/dashboard/earnings" className="flex-1">
+                                    <Button variant="outline" className="w-full" size="sm">
+                                        <DollarSign className="mr-2 h-4 w-4" />
+                                        Withdraw Earnings
+                                    </Button>
+                                </Link>
+                                <Link href="/dashboard/settings" className="flex-1">
+                                    <Button variant="outline" className="w-full" size="sm">
+                                        <AlertCircle className="mr-2 h-4 w-4" />
+                                        Account Settings
+                                    </Button>
+                                </Link>
+                            </CardContent>
+                        </Card>
                     </div>
 
-                    {/* Product Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {[
-                            { id: "1", name: "Engine Oil Filter - Toyota Camry", price: 12500, eth: 0.008, reviews: 48, rating: 5, image: "/placeholder-part.png" },
-                            { id: "2", name: "Brake Pads Set - Honda Accord", price: 28000, eth: 0.018, reviews: 92, rating: 5, image: "/placeholder-part.png" },
-                            { id: "3", name: "Car Battery 12V - Universal", price: 45000, eth: 0.029, reviews: 35, rating: 4, image: "/placeholder-part.png" },
-                            { id: "4", name: "Headlight Assembly - Mercedes", price: 85000, eth: 0.055, reviews: 67, rating: 5, image: "/placeholder-part.png" },
-                        ].map((product) => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
+                    {/* Recent Orders */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                        <Card className="lg:col-span-2">
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <CardTitle>Recent Orders</CardTitle>
+                                        <CardDescription>Orders waiting for action</CardDescription>
+                                    </div>
+                                    <Link href="/dashboard/orders">
+                                        <Button variant="ghost" size="sm">View All</Button>
+                                    </Link>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {/* Order Item */}
+                                    {[
+                                        { id: 1, product: "Engine Oil Filter", buyer: "John Doe", amount: "₦12,500", status: "pending", statusColor: "bg-yellow-100 text-yellow-800" },
+                                        { id: 2, product: "Brake Pads Set", buyer: "Jane Smith", amount: "₦28,000", status: "shipped", statusColor: "bg-blue-100 text-blue-800" },
+                                        { id: 3, product: "Air Filter", buyer: "Mike Johnson", amount: "₦8,500", status: "delivered", statusColor: "bg-green-100 text-green-800" },
+                                    ].map((order) => (
+                                        <div key={order.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-500 transition-colors">
+                                            <div>
+                                                <p className="font-medium text-gray-900">{order.product}</p>
+                                                <p className="text-sm text-gray-500">from {order.buyer}</p>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <div className="text-right">
+                                                    <p className="font-semibold text-gray-900">{order.amount}</p>
+                                                    <span className={`text-xs px-2 py-1 rounded-full ${order.statusColor} capitalize`}>
+                                                        {order.status}
+                                                    </span>
+                                                </div>
+                                                <ChevronRight className="h-5 w-5 text-gray-400" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Active Listings */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Active Listings</CardTitle>
+                                <CardDescription>Your current products</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {[
+                                        { id: 1, name: "Engine Oil Filter", views: 245, sold: 3 },
+                                        { id: 2, name: "Brake Pads Set", views: 189, sold: 8 },
+                                        { id: 3, name: "Air Filter", views: 156, sold: 2 },
+                                    ].map((listing) => (
+                                        <Link key={listing.id} href={`/dashboard/listings/${listing.id}`}>
+                                            <div className="p-3 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer">
+                                                <p className="font-medium text-gray-900 text-sm">{listing.name}</p>
+                                                <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                                                    <Eye className="h-3 w-3" />
+                                                    <span>{listing.views} views</span>
+                                                    <CheckCircle className="h-3 w-3 ml-2" />
+                                                    <span>{listing.sold} sold</span>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                    <Link href="/dashboard/listings">
+                                        <Button variant="outline" className="w-full" size="sm">
+                                            <Eye className="mr-2 h-4 w-4" />
+                                            View All Listings
+                                        </Button>
+                                    </Link>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
+
+                    {/* Performance Section */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Performance Overview</CardTitle>
+                            <CardDescription>Your seller metrics for the last 30 days</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-gray-900">94%</div>
+                                    <p className="text-sm text-gray-600">Positive Feedback</p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-gray-900">1.2h</div>
+                                    <p className="text-sm text-gray-600">Avg. Response Time</p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-gray-900">100%</div>
+                                    <p className="text-sm text-gray-600">On-Time Delivery</p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-gray-900">₦450K</div>
+                                    <p className="text-sm text-gray-600">Total Revenue</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
-        </div>
-    );
-}
-
-function ProductCard({ product }: { product: any }) {
-    const { addItem } = useCart();
-    const [isAdded, setIsAdded] = useState(false);
-
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        addItem({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image
-        });
-
-        setIsAdded(true);
-        setTimeout(() => setIsAdded(false), 2000);
-    };
-
-    return (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow group flex flex-col h-full">
-            <Link href={`/shop/${product.id}`} className="block flex-1">
-                <div className="relative h-48 bg-gray-100 p-4 flex items-center justify-center">
-                    <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
-                        <span className="bg-[#10B981] text-white text-[10px] font-bold px-2 py-1 rounded">VERIFIED</span>
-                    </div>
-                    <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 relative">
-                        <Image src={product.image} fill alt={product.name} className="object-contain p-2" />
-                    </div>
-                </div>
-
-                <div className="p-4 space-y-3">
-                    <div>
-                        <h3 className="font-bold text-[#111827] leading-tight group-hover:text-[#1D4ED8] transition-colors line-clamp-1">
-                            {product.name}
-                        </h3>
-                        <div className="flex items-center space-x-1 mt-1">
-                            {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`h-3 w-3 ${i < product.rating ? "fill-[#F59E0B] text-[#F59E0B]" : "text-gray-300"}`} />
-                            ))}
-                            <span className="text-xs text-gray-500 ml-1">({product.reviews})</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-end justify-between pt-1">
-                        <div>
-                            <div className="text-lg font-bold text-[#1D4ED8]">₦{product.price.toLocaleString()}</div>
-                            <div className="text-xs text-gray-500">≈ {product.eth} ETH</div>
-                        </div>
-                    </div>
-                </div>
-            </Link>
-
-            <div className="p-4 pt-0 mt-auto">
-                <Button
-                    onClick={handleAddToCart}
-                    className={`w-full font-bold h-10 transition-all duration-300 ${isAdded
-                        ? "bg-green-600 hover:bg-green-700 text-white"
-                        : "bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white"
-                        }`}
-                >
-                    {isAdded ? (
-                        <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Added to Cart
-                        </>
-                    ) : (
-                        "Add to Cart"
-                    )}
-                </Button>
-            </div>
-        </div>
+        </ProtectedRoute>
     );
 }
 
