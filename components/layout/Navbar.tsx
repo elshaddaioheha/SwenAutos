@@ -12,9 +12,10 @@ import { useCart } from '@/components/providers/CartProvider';
 import { useAuth } from '@/components/providers/AuthProvider';
 
 export function Navbar() {
-    const { authenticated: web3Authenticated } = useAuthState();
-    const { isAuthenticated: localAuthenticated, user } = useAuth();
+    const { authenticated: web3Authenticated, loading: web3Loading } = useAuthState();
+    const { isAuthenticated: localAuthenticated, user, isLoading: localLoading } = useAuth();
     const authenticated = web3Authenticated || localAuthenticated;
+    const isLoading = web3Loading || localLoading;
     const { totalItems } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
@@ -73,7 +74,12 @@ export function Navbar() {
                         </Link>
                     )}
 
-                    {authenticated ? (
+                    {isLoading ? (
+                        <div className="hidden md:flex items-center space-x-4">
+                            <div className="h-10 w-20 bg-gray-200 rounded-md animate-pulse" />
+                            <div className="h-10 w-24 bg-gray-200 rounded-md animate-pulse" />
+                        </div>
+                    ) : authenticated ? (
                         <UserProfile />
                     ) : (
                         <div className="hidden md:flex items-center space-x-4">

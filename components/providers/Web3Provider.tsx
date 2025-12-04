@@ -18,6 +18,7 @@ const config = createConfig({
     transports: {
         [baseCampTestnet.id]: http(),
     },
+    ssr: true,
 });
 
 // Create a react-query client

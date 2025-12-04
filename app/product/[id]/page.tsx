@@ -80,7 +80,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     const [activeTab, setActiveTab] = useState("description");
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState(0);
-    const [priceCurrency, setPriceCurrency] = useState<"NGN" | "CAMP">("NGN");
+    const [activeImage, setActiveImage] = useState(0);
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [loginAction, setLoginAction] = useState<"add" | "buy" | null>(null);
@@ -91,15 +91,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     useEffect(() => {
         // Wait for both auth providers to finish loading
         if (web3Loading || localLoading) return;
-
-        const loggedIn = localAuth || web3Auth;
-
-        if (!loggedIn) {
-            router.push(`/login?redirect=/product/${unwrappedParams.id}`);
-        } else {
-            setIsCheckingAuth(false);
-        }
-    }, [router, unwrappedParams.id, localAuth, web3Auth, web3Loading, localLoading]);
+        setIsCheckingAuth(false);
+    }, [web3Loading, localLoading]);
 
     // Product pages are public — we removed the redirect check so users can preview without logging in.
 
@@ -196,27 +189,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             <div className="flex items-start justify-between">
                                 <div>
                                     <div className="text-4xl font-bold text-gray-900 dark:text-white">
-                                        {priceCurrency === "NGN" ? `₦${PRODUCT.price.toLocaleString()}` : `${PRODUCT.priceEth} ETH`}
+                                        ₦{PRODUCT.price.toLocaleString()}
                                     </div>
-                                    <div className="text-primary mt-1 font-medium">
-                                        ≈ {priceCurrency === "NGN" ? `${PRODUCT.priceEth} ETH` : `₦${PRODUCT.price.toLocaleString()}`}
+                                    <div className="text-xl text-primary mt-1 font-bold">
+                                        {PRODUCT.priceCamp} CAMP
                                     </div>
-                                </div>
-
-                                {/* Currency Toggle */}
-                                <div className="bg-white dark:bg-gray-800 rounded-lg p-1 flex border border-gray-200 dark:border-gray-700">
-                                    <button
-                                        onClick={() => setPriceCurrency("NGN")}
-                                        className={`px-3 py-1 text-xs font-bold rounded transition-colors ${priceCurrency === "NGN" ? "bg-primary text-white" : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
-                                    >
-                                        ₦ NGN
-                                    </button>
-                                    <button
-                                        onClick={() => setPriceCurrency("ETH")}
-                                        className={`px-3 py-1 text-xs font-bold rounded transition-colors ${priceCurrency === "ETH" ? "bg-primary text-white" : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
-                                    >
-                                        ETH
-                                    </button>
                                 </div>
                             </div>
 

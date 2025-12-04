@@ -10,7 +10,7 @@ interface ProductCardProps {
     id: string;
     name: string;
     price: number;
-    priceETH?: number;
+    priceCamp?: number;
     image: string;
     rating: number;
     reviews: number;
@@ -19,7 +19,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({
-    id, name, price, priceETH = 0, image, rating, reviews, category, inStock = true
+    id, name, price, priceCamp = 0, image, rating, reviews, category, inStock = true
 }: ProductCardProps) {
     const { addItem } = useCart();
     return (
@@ -86,9 +86,9 @@ export function ProductCard({
                         <span className="text-lg font-bold text-primary">
                             {formatCurrency(price)}
                         </span>
-                        {priceETH > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                                ≈ {priceETH} ETH
+                        {priceCamp > 0 && (
+                            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                {priceCamp} CAMP
                             </span>
                         )}
                     </div>

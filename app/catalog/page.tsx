@@ -23,10 +23,12 @@ export default function CatalogPage() {
 
     // Helper to format blockchain product to UI product
     const formatProduct = (p: any) => {
+        const campPrice = parseFloat(formatEther(p.price));
         return {
             id: p.productId.toString(),
             name: p.name,
-            price: parseFloat(formatEther(p.price)),
+            price: campPrice * 1600, // Approximate NGN price
+            priceCamp: campPrice,
             rating: 0, // Not yet implemented on chain
             reviews: 0,
             category: p.category,

@@ -46,7 +46,7 @@ function LoginForm() {
                 if (role === "seller") {
                     router.push("/dashboard");
                 } else {
-                    router.push("/catalog");
+                    router.push("/shop");
                 }
             }
         } catch (err) {

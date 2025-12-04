@@ -8,6 +8,8 @@ import { Loader2, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { useToast } from "@/components/ToastProvider";
+
 interface LoginButtonProps {
     redirectUrl?: string;
 }
@@ -18,6 +20,7 @@ export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
     const { address, isConnected } = useAccount();
     const router = useRouter();
     const { login } = useAuth();
+    const { push } = useToast();
     const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
@@ -34,17 +37,19 @@ export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
                 role: "buyer" // Default to buyer for wallet login
             });
 
+            push({ type: "success", message: "Wallet connected successfully!" });
+
             // User is authenticated, redirect
             router.push(redirectUrl);
         }
-    }, [isConnected, address, router, redirectUrl]); // Removed login from dependency array to avoid potential loops if login changes identity
+    }, [isConnected, address, router, redirectUrl, push]); // Removed login from dependency array to avoid potential loops if login changes identity
 
     const handleLogin = async () => {
         setIsConnecting(true);
         try {
             // Check if window.ethereum exists
             if (typeof window !== 'undefined' && !(window as any).ethereum) {
-                alert("No crypto wallet found. Please install MetaMask or another wallet.");
+                push({ type: "error", message: "No crypto wallet found. Please install MetaMask." });
                 setIsConnecting(false);
                 return;
             }
@@ -52,7 +57,7 @@ export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
             // Explicitly use the first available connector (usually injected/MetaMask)
             const connector = connectors[0];
             if (!connector) {
-                alert("No wallet connector found.");
+                push({ type: "error", message: "No wallet connector found." });
                 setIsConnecting(false);
                 return;
             }
@@ -60,7 +65,7 @@ export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
             connect({ connector });
         } catch (error) {
             console.error("Login failed:", error);
-            alert("Failed to connect wallet. Please try again.");
+            push({ type: "error", message: "Failed to connect wallet. Please try again." });
             setIsConnecting(false);
         }
     };
