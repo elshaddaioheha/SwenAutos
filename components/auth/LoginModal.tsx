@@ -61,7 +61,13 @@ export function LoginModal({ isOpen, onClose, onSuccess, returnUrl }: LoginModal
 
         <div className="my-3 text-center text-sm text-gray-400">or connect with your wallet</div>
 
-        <LoginButton redirectUrl={returnUrl || '/dashboard'} />
+        <LoginButton
+          redirectUrl={returnUrl || '/dashboard'}
+          onSuccess={() => {
+            onSuccess?.();
+            onClose();
+          }}
+        />
       </div>
     </div>
   );

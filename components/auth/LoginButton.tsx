@@ -12,9 +12,10 @@ import { useToast } from "@/components/ToastProvider";
 
 interface LoginButtonProps {
     redirectUrl?: string;
+    onSuccess?: () => void;
 }
 
-export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
+export function LoginButton({ redirectUrl = "/dashboard", onSuccess }: LoginButtonProps) {
     const { connectors, connect } = useConnect();
     const { authenticated, loading } = useAuthState();
     const { address, isConnected } = useAccount();
@@ -39,10 +40,14 @@ export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
 
             push({ type: "success", message: "Wallet connected successfully!" });
 
-            // User is authenticated, redirect
-            router.push(redirectUrl);
+            if (onSuccess) {
+                onSuccess();
+            } else {
+                // User is authenticated, redirect
+                router.push(redirectUrl);
+            }
         }
-    }, [isConnected, address, router, redirectUrl, push]); // Removed login from dependency array to avoid potential loops if login changes identity
+    }, [isConnected, address, router, redirectUrl, push, onSuccess]); // Removed login from dependency array to avoid potential loops if login changes identity
 
     const handleLogin = async () => {
         setIsConnecting(true);
