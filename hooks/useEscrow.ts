@@ -1,7 +1,7 @@
 import { useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useViem } from '@campnetwork/origin/react';
 import { useState } from 'react';
-import EscrowArtifact from '@/contracts/artifacts/contracts/EscrowContract.sol/EscrowContract.json';
+import EscrowArtifact from '@/lib/abis/Escrow.json';
 import { CONTRACT_ADDRESSES } from '@/lib/campNetwork';
 import { parseEther } from 'viem';
 

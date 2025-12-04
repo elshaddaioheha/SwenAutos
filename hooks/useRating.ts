@@ -1,7 +1,7 @@
 import { useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useViem } from '@campnetwork/origin/react';
 import { useState } from 'react';
-import RatingArtifact from '@/contracts/artifacts/contracts/RatingContract.sol/RatingContract.json';
+import RatingArtifact from '@/lib/abis/Rating.json';
 import { CONTRACT_ADDRESSES } from '@/lib/campNetwork';
 
 const ABI = RatingArtifact.abi;

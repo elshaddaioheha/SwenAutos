@@ -2,7 +2,7 @@ import { useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther } from 'viem';
 import { useViem } from '@campnetwork/origin/react';
 import { useState } from 'react';
-import ProductListingArtifact from '@/contracts/artifacts/contracts/ProductListingContract.sol/ProductListingContract.json';
+import ProductListingArtifact from '@/lib/abis/ProductListing.json';
 import { CONTRACT_ADDRESSES } from '@/lib/campNetwork';
 
 const ABI = ProductListingArtifact.abi;
