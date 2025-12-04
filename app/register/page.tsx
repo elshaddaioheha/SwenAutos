@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -57,38 +58,42 @@ export default function RegisterPage() {
         if (!isFormValid) return;
 
         setIsLoading(true);
-        // Simulate API call to send verification code
-        setTimeout(() => {
-            setIsLoading(false);
-            setStep(2);
-        }, 1500);
-    };
 
-    const handleVerify = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (verificationCode.length < 4) return;
-
-        setIsLoading(true);
-        // Simulate verification API call
-        setTimeout(() => {
-            setIsLoading(false);
-
-            // Login the user
-            login({
-                id: 'user-' + Date.now(),
-                name: fullName,
-                email: email,
-                role: role
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        phone: phone,
+                        role: role,
+                        business_name: businessName,
+                    },
+                },
             });
 
-            // Redirect based on role
-            if (role === "seller") {
-                router.push("/dashboard"); // Or vendor onboarding
-            } else {
-                router.push("/");
+            if (error) {
+                alert(error.message);
+                setIsLoading(false);
+                return;
             }
-        }, 1500);
+
+            // If successful, move to verification step (which we'll repurpose as "Check Email")
+            setIsLoading(false);
+            setStep(2);
+
+        } catch (err) {
+            console.error("Registration error:", err);
+            alert("An unexpected error occurred.");
+            setIsLoading(false);
+        }
     };
+
+    // handleVerify is no longer needed for email link verification, 
+    // but we might keep it if we implement OTP later. 
+    // For now, we'll just remove it or leave it empty/unused if the UI changes.
+    // I will remove it and update the UI to not use it.
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col items-center py-8 px-4 transition-colors duration-300">
@@ -191,20 +196,20 @@ export default function RegisterPage() {
                                     />
                                 </div>
 
-                                                        {/* Verification method */}
-                                                        <div className="space-y-1.5">
-                                                                <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">Verify via</label>
-                                                                <div className="flex gap-3">
-                                                                    <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'phone' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
-                                                                        <input type="radio" name="verifyVia" value="phone" checked={verifyVia === 'phone'} onChange={() => setVerifyVia('phone')} className="mr-2" /> Phone
-                                                                    </label>
-                                                                    <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'email' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
-                                                                        <input type="radio" name="verifyVia" value="email" checked={verifyVia === 'email'} onChange={() => setVerifyVia('email')} className="mr-2" /> Email
-                                                                    </label>
-                                                                </div>
-                                                        </div>
+                                {/* Verification method */}
+                                <div className="space-y-1.5">
+                                    <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">Verify via</label>
+                                    <div className="flex gap-3">
+                                        <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'phone' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
+                                            <input type="radio" name="verifyVia" value="phone" checked={verifyVia === 'phone'} onChange={() => setVerifyVia('phone')} className="mr-2" /> Phone
+                                        </label>
+                                        <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'email' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
+                                            <input type="radio" name="verifyVia" value="email" checked={verifyVia === 'email'} onChange={() => setVerifyVia('email')} className="mr-2" /> Email
+                                        </label>
+                                    </div>
+                                </div>
 
-                                                        {/* Phone Number */}
+                                {/* Phone Number */}
                                 <div className="space-y-1.5">
                                     <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">
                                         Phone Number <span className="text-red-500 ml-1">*</span>
@@ -227,7 +232,7 @@ export default function RegisterPage() {
                                             className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 flex-1 text-gray-900 dark:text-white"
                                         />
                                     </div>
-                                        <p className="text-gray-500 dark:text-gray-400 text-[13px] font-manrope">
+                                    <p className="text-gray-500 dark:text-gray-400 text-[13px] font-manrope">
                                         {verifyVia === 'phone' ? "We'll send a verification code to this number" : "We'll send a verification link/code to your email"}
                                     </p>
                                 </div>
@@ -314,21 +319,21 @@ export default function RegisterPage() {
                                     )}
                                 </div>
 
-                                                                {/* Seller-specific business information */}
-                                                                {role === 'seller' && (
-                                                                    <div className="space-y-1.5">
-                                                                        <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">Business / Shop Name <span className="text-red-500 ml-1">*</span></label>
-                                                                        <Input
-                                                                                value={businessName}
-                                                                                onChange={(e) => setBusinessName(e.target.value)}
-                                                                                placeholder="Your shop or business name"
-                                                                                className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                                                        />
-                                                                        <p className="text-gray-500 text-xs">This helps buyers find you and sets up your storefront identity.</p>
-                                                                    </div>
-                                                                )}
+                                {/* Seller-specific business information */}
+                                {role === 'seller' && (
+                                    <div className="space-y-1.5">
+                                        <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">Business / Shop Name <span className="text-red-500 ml-1">*</span></label>
+                                        <Input
+                                            value={businessName}
+                                            onChange={(e) => setBusinessName(e.target.value)}
+                                            placeholder="Your shop or business name"
+                                            className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                        />
+                                        <p className="text-gray-500 text-xs">This helps buyers find you and sets up your storefront identity.</p>
+                                    </div>
+                                )}
 
-                                                                {/* Terms Checkbox */}
+                                {/* Terms Checkbox */}
                                 <div className="flex items-start gap-3 pt-2">
                                     <div className="flex items-center h-5">
                                         <input
@@ -365,44 +370,26 @@ export default function RegisterPage() {
                         <>
                             {/* Verification Step */}
                             <div className="text-center mb-8">
-                                <h2 className="text-gray-900 dark:text-white font-bold text-2xl mb-2 font-manrope">Verify Your Phone</h2>
+                                <h2 className="text-gray-900 dark:text-white font-bold text-2xl mb-2 font-manrope">Check Your Email</h2>
                                 <p className="text-gray-500 dark:text-gray-400 text-[15px] font-manrope">
-                                    We sent a 4-digit code to <span className="font-bold text-gray-900 dark:text-white">{phone}</span>
+                                    We sent a confirmation link to <span className="font-bold text-gray-900 dark:text-white">{email}</span>.
+                                    Please click the link to verify your account.
                                 </p>
                             </div>
 
-                            <form onSubmit={handleVerify} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope">
-                                        Verification Code
-                                    </label>
-                                    <Input
-                                        value={verificationCode}
-                                        onChange={(e) => setVerificationCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
-                                        placeholder="0000"
-                                        className="h-14 text-center text-2xl tracking-[1em] font-bold rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                    />
-                                    <p className="text-center text-sm text-gray-500">
-                                        Didn't receive code? <button type="button" className="text-primary font-bold hover:underline">Resend</button>
-                                    </p>
-                                </div>
-
+                            <div className="space-y-6">
                                 <Button
-                                    type="submit"
-                                    disabled={verificationCode.length < 4 || isLoading}
+                                    type="button"
+                                    onClick={() => router.push('/login')}
                                     className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-xl shadow-lg shadow-blue-500/20 transition-all"
                                 >
-                                    {isLoading ? "Verifying..." : "Verify & Create Account"}
+                                    Go to Login
                                 </Button>
 
-                                <button
-                                    type="button"
-                                    onClick={() => setStep(1)}
-                                    className="w-full text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 font-medium"
-                                >
-                                    Go back to edit details
-                                </button>
-                            </form>
+                                <p className="text-center text-sm text-gray-500">
+                                    Didn't receive the email? <button type="button" className="text-primary font-bold hover:underline" onClick={() => alert("Please check your spam folder.")}>Resend</button>
+                                </p>
+                            </div>
                         </>
                     )}
                 </div>

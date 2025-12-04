@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { LoginButton } from "@/components/auth/LoginButton";
+import { supabase } from "@/lib/supabase";
 
 function LoginForm() {
     const router = useRouter();
@@ -22,30 +23,37 @@ function LoginForm() {
     const [loading, setLoading] = useState(false);
     const [remember, setRemember] = useState(true);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            // Mock successful login
-            login({
-                id: 'user-' + Date.now(),
-                name: email.split('@')[0], // Use part of email as name
-                email: email,
-                role: role
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
             });
 
-            setLoading(false);
-
-            // Redirect based on role
-            if (role === "seller") {
-                router.push("/dashboard");
-            } else {
-                // Buyers go to catalog/shop
-                router.push("/catalog");
+            if (error) {
+                alert(error.message);
+                setLoading(false);
+                return;
             }
-        }, 1500);
+
+            // Redirect
+            if (searchParams.get("redirect")) {
+                router.push(searchParams.get("redirect")!);
+            } else {
+                if (role === "seller") {
+                    router.push("/dashboard");
+                } else {
+                    router.push("/catalog");
+                }
+            }
+        } catch (err) {
+            console.error("Login error:", err);
+            setLoading(false);
+            alert("An unexpected error occurred.");
+        }
     };
 
     return (

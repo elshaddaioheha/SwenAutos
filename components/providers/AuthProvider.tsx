@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext } from 'react';
+import { supabase } from '@/lib/supabase';
 
 /**
  * DEPRECATED: This AuthProvider is kept for backward compatibility only.
@@ -33,25 +34,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = React.useState(true);
 
     React.useEffect(() => {
-        // Check localStorage on mount
-        const storedUser = localStorage.getItem('swenautos_user');
-        if (storedUser) {
+        const initializeAuth = async () => {
             try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse user from local storage");
-                localStorage.removeItem('swenautos_user');
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user) {
+                    setUser({
+                        id: session.user.id,
+                        name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+                        email: session.user.email || '',
+                        role: session.user.user_metadata.role || 'buyer'
+                    });
+                }
+            } catch (error) {
+                console.error("Error checking auth session:", error);
+            } finally {
+                setIsLoading(false);
             }
-        }
-        setIsLoading(false);
+        };
+
+        initializeAuth();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) {
+                setUser({
+                    id: session.user.id,
+                    name: session.user.user_metadata.full_name || session.user.email?.split('@')[0] || 'User',
+                    email: session.user.email || '',
+                    role: session.user.user_metadata.role || 'buyer'
+                });
+            } else {
+                setUser(null);
+            }
+            setIsLoading(false);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
     }, []);
 
     const login = (userData: User) => {
+        // This is now primarily for manual state updates if needed, 
+        // but Supabase listener is the source of truth.
         setUser(userData);
-        localStorage.setItem('swenautos_user', JSON.stringify(userData));
     };
 
-    const logout = () => {
+    const logout = async () => {
+        await supabase.auth.signOut();
         setUser(null);
         localStorage.removeItem('swenautos_user');
     };
@@ -59,9 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const updateUser = (updates: Partial<User>) => {
         setUser(prev => {
             if (!prev) return null;
-            const newUser = { ...prev, ...updates };
-            localStorage.setItem('swenautos_user', JSON.stringify(newUser));
-            return newUser;
+            return { ...prev, ...updates };
         });
     };
 
