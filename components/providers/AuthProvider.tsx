@@ -29,16 +29,50 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    // Web3 wallet auth is now the single source of truth
-    // This provider is kept as a no-op for backward compatibility
+    const [user, setUser] = React.useState<User | null>(null);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        // Check localStorage on mount
+        const storedUser = localStorage.getItem('swenautos_user');
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (e) {
+                console.error("Failed to parse user from local storage");
+                localStorage.removeItem('swenautos_user');
+            }
+        }
+        setIsLoading(false);
+    }, []);
+
+    const login = (userData: User) => {
+        setUser(userData);
+        localStorage.setItem('swenautos_user', JSON.stringify(userData));
+    };
+
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem('swenautos_user');
+    };
+
+    const updateUser = (updates: Partial<User>) => {
+        setUser(prev => {
+            if (!prev) return null;
+            const newUser = { ...prev, ...updates };
+            localStorage.setItem('swenautos_user', JSON.stringify(newUser));
+            return newUser;
+        });
+    };
+
     return (
-        <AuthContext.Provider value={{ 
-            user: null, 
-            isAuthenticated: false, 
-            isLoading: false, 
-            login: () => {}, 
-            logout: () => {}, 
-            updateUser: () => {} 
+        <AuthContext.Provider value={{
+            user,
+            isAuthenticated: !!user,
+            isLoading,
+            login,
+            logout,
+            updateUser
         }}>
             {children}
         </AuthContext.Provider>

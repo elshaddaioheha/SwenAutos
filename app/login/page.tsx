@@ -109,7 +109,7 @@ function LoginForm() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="h-12 rounded-xl"
+                                    className="h-12 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -121,7 +121,7 @@ function LoginForm() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
-                                        className="h-12 rounded-xl pr-10"
+                                        className="h-12 rounded-xl pr-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700"
                                     />
                                     <button
                                         type="button"
