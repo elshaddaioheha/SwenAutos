@@ -80,7 +80,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     const [activeTab, setActiveTab] = useState("description");
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState(0);
-    const [activeImage, setActiveImage] = useState(0);
+
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [loginAction, setLoginAction] = useState<"add" | "buy" | null>(null);

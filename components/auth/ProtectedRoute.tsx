@@ -18,22 +18,44 @@ export function ProtectedRoute({ children, requireSeller = false }: ProtectedRou
     const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
-        // Wait for both auth providers to load
+        // Optimization: Short-circuit if we are already authenticated
+        // This prevents waiting for slow providers if one is already ready
+        if (localAuth) {
+            // If we need seller role, ensure we have it
+            if (requireSeller && user?.role !== "seller") {
+                router.push("/dashboard/settings"); // Or unauthorized page
+            } else {
+                setIsChecking(false);
+            }
+            return;
+        }
+
+        if (web3Auth) {
+            // Web3 users are currently treated as buyers by default in this check
+            // If requireSeller is true, we might block them or need to fetch role from contract/backend
+            if (requireSeller) {
+                // If they are web3 auth'd but we don't have a local user profile with 'seller' role yet...
+                // We might need to wait for localLoading to be sure, OR redirect them to create a profile.
+                // For now, if they are web3Auth only, we assume they might not be a seller yet unless synced.
+                if (!user || user.role !== "seller") {
+                    // Don't redirect immediately if local is still loading, as it might sync up
+                    if (localLoading) return;
+                    router.push("/dashboard/settings");
+                } else {
+                    setIsChecking(false);
+                }
+            } else {
+                setIsChecking(false);
+            }
+            return;
+        }
+
+        // If not authenticated yet, wait for both to finish loading
         if (web3Loading || localLoading) return;
 
-        const isAuthenticated = localAuth || web3Auth;
+        // Both loaded, and neither is authenticated
+        router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
 
-        if (!isAuthenticated) {
-            // Redirect to login with return URL
-            router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
-        } else if (requireSeller && user?.role !== "seller") {
-            // If seller role is required but user is not a seller
-            // We don't redirect to login, but maybe to a "Forbidden" or "Upgrade" page
-            // For now, we'll handle this in the render or redirect to dashboard settings
-            router.push("/dashboard/settings");
-        } else {
-            setIsChecking(false);
-        }
     }, [localAuth, web3Auth, web3Loading, localLoading, router, pathname, requireSeller, user]);
 
     if (web3Loading || localLoading || isChecking) {
