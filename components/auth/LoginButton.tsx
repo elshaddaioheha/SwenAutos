@@ -1,11 +1,11 @@
 "use client";
 
-import { useConnect, useAuthState } from "@campnetwork/origin/react";
-import { useAccount } from "wagmi";
+import { useAuthState } from "@campnetwork/origin/react";
+import { useAccount, useConnect } from "wagmi";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Loader2, Wallet } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface LoginButtonProps {
@@ -13,14 +13,19 @@ interface LoginButtonProps {
 }
 
 export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
-    const { connect } = useConnect();
+    const { connectors, connect } = useConnect();
     const { authenticated, loading } = useAuthState();
-    const { address } = useAccount();
+    const { address, isConnected } = useAccount();
     const router = useRouter();
     const { login } = useAuth();
+    const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
-        if (authenticated && address) {
+        // Use isConnected from wagmi as the primary signal for wallet connection
+        if (isConnected && address) {
+            // Only redirect if we are not already redirected (simple check)
+            // In a real app, we might want to check if the user is already "logged in" in our local state matching this address
+
             // Sync with local AuthProvider
             login({
                 id: address,
@@ -32,37 +37,46 @@ export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
             // User is authenticated, redirect
             router.push(redirectUrl);
         }
-    }, [authenticated, address, router, redirectUrl, login]);
+    }, [isConnected, address, router, redirectUrl]); // Removed login from dependency array to avoid potential loops if login changes identity
 
     const handleLogin = async () => {
+        setIsConnecting(true);
         try {
-            // Check if window.ethereum exists (basic check for wallet presence)
+            // Check if window.ethereum exists
             if (typeof window !== 'undefined' && !(window as any).ethereum) {
                 alert("No crypto wallet found. Please install MetaMask or another wallet.");
+                setIsConnecting(false);
                 return;
             }
-            await connect();
+
+            // Explicitly use the first available connector (usually injected/MetaMask)
+            const connector = connectors[0];
+            if (!connector) {
+                alert("No wallet connector found.");
+                setIsConnecting(false);
+                return;
+            }
+
+            connect({ connector });
         } catch (error) {
             console.error("Login failed:", error);
-            // The specific error "Cannot read properties of null (reading 'requestAddresses')"
-            // often happens if the provider is not ready or if the user cancels too quickly/unexpectedly.
-            // We can show a user-friendly alert.
-            alert("Failed to connect wallet. Please try again or ensure your wallet is unlocked.");
+            alert("Failed to connect wallet. Please try again.");
+            setIsConnecting(false);
         }
     };
 
     return (
         <Button
             onClick={handleLogin}
-            disabled={loading || authenticated}
+            disabled={loading || isConnected || isConnecting}
             className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-xl shadow-lg shadow-blue-600/20"
         >
-            {loading ? (
+            {loading || isConnecting ? (
                 <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Connecting...
                 </>
-            ) : authenticated ? (
+            ) : isConnected ? (
                 "Redirecting..."
             ) : (
                 <>

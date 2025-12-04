@@ -73,11 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
     }, []);
 
-    const login = (userData: User) => {
+    const login = React.useCallback((userData: User) => {
         // This is now primarily for manual state updates if needed, 
         // but Supabase listener is the source of truth.
         setUser(userData);
-    };
+    }, []);
 
     const logout = async () => {
         await supabase.auth.signOut();

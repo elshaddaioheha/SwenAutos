@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth as useOriginAuth, useAuthState } from "@campnetwork/origin/react";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { User, LogOut, Settings, LayoutDashboard, Package, PlusCircle, Store } from "lucide-react";
 import Link from "next/link";
@@ -13,22 +14,41 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 export function UserProfile() {
-    // Web3 Auth only - single source of truth
+    // Web3 Auth
     const { authenticated: web3Authenticated, loading: web3Loading } = useAuthState();
     const originAuth = useOriginAuth();
     const web3User = (originAuth as any)?.user || (originAuth as any);
 
-    const isLoading = web3Loading;
-    const isAuthenticated = web3Authenticated;
+    // Local Supabase Auth
+    const { isAuthenticated: localAuthenticated, user: localUser, logout: localLogout } = useAuth();
+    const router = useRouter();
 
-    // User data comes only from web3
-    const displayUser = {
-        name: web3User?.metadata?.name || "Anonymous User",
-        image: web3User?.metadata?.image,
-        subtitle: web3User?.address ? `${web3User.address.slice(0, 6)}...${web3User.address.slice(-4)}` : "Connected via Wallet"
+    const isLoading = web3Loading;
+    const isAuthenticated = web3Authenticated || localAuthenticated;
+
+    // Determine display data
+    let displayUser = {
+        name: "Anonymous User",
+        image: null as string | null | undefined,
+        subtitle: "Guest"
     };
+
+    if (web3Authenticated) {
+        displayUser = {
+            name: web3User?.metadata?.name || "Wallet User",
+            image: web3User?.metadata?.image,
+            subtitle: web3User?.address ? `${web3User.address.slice(0, 6)}...${web3User.address.slice(-4)}` : "Connected via Wallet"
+        };
+    } else if (localAuthenticated && localUser) {
+        displayUser = {
+            name: localUser.name || localUser.email.split('@')[0],
+            image: null, // Supabase user avatar if available
+            subtitle: localUser.email
+        };
+    }
 
     if (isLoading) {
         return <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />;
@@ -43,6 +63,18 @@ export function UserProfile() {
             </Link>
         );
     }
+
+    const handleLogout = async () => {
+        if (web3Authenticated) {
+            // CAMP Network handles wallet disconnect via its own UI usually, 
+            // but we can redirect or clear local state if needed.
+            // For now, we just reload to clear Web3 state if the SDK doesn't expose a disconnect method directly here.
+            window.location.href = "/";
+        } else {
+            await localLogout();
+            router.push('/login');
+        }
+    };
 
     return (
         <DropdownMenu>
@@ -67,22 +99,20 @@ export function UserProfile() {
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{displayUser.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground capitalize">
+                        <p className="text-xs leading-none text-muted-foreground truncate">
                             {displayUser.subtitle}
                         </p>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                
-                {/* Buyer/Seller role detection will be added here from contract data */}
-                {/* For now, all authenticated users see seller options */}
+
                 <DropdownMenuItem asChild>
                     <Link href="/dashboard" className="cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
                     </Link>
                 </DropdownMenuItem>
-                
+
                 <DropdownMenuItem asChild>
                     <Link href="/dashboard/listings" className="cursor-pointer">
                         <Store className="mr-2 h-4 w-4" />
@@ -110,14 +140,11 @@ export function UserProfile() {
                         <span>Settings</span>
                     </Link>
                 </DropdownMenuItem>
-                
+
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={() => {
-                    // CAMP Network handles wallet disconnect
-                    window.location.href = "/";
-                }}>
+                <DropdownMenuItem className="text-red-600 cursor-pointer" onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Disconnect Wallet</span>
+                    <span>{web3Authenticated ? "Disconnect Wallet" : "Sign Out"}</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

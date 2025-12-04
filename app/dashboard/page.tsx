@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import LoginButton from "@/components/auth/LoginButton";
 
 /**
  * Seller Dashboard

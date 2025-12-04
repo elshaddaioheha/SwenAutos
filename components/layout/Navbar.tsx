@@ -9,9 +9,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthState } from '@campnetwork/origin/react';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { useCart } from '@/components/providers/CartProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export function Navbar() {
-    const { authenticated } = useAuthState();
+    const { authenticated: web3Authenticated } = useAuthState();
+    const { isAuthenticated: localAuthenticated, user } = useAuth();
+    const authenticated = web3Authenticated || localAuthenticated;
     const { totalItems } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
