@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -230,7 +232,7 @@ export default function ShopPage() {
                                         <div className="flex items-end justify-between pt-1">
                                             <div>
                                                 <div className="text-lg font-bold text-[#111827]">₦12,500</div>
-                                                <div className="text-xs text-gray-500">≈ 0.008 ETH</div>
+                                                <div className="text-xs text-gray-500">≈ 7.81 CAMP</div>
                                             </div>
                                             <Button size="sm" className="bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-9 px-4" onClick={(e) => e.preventDefault()}>
                                                 <ShoppingCart className="h-3 w-3 mr-2" />
@@ -288,7 +290,7 @@ export default function ShopPage() {
                                         <div className="flex items-end justify-between pt-1">
                                             <div>
                                                 <div className="text-lg font-bold text-[#111827]">₦14,200</div>
-                                                <div className="text-xs text-gray-500">≈ 0.009 ETH</div>
+                                                <div className="text-xs text-gray-500">≈ 8.87 CAMP</div>
                                             </div>
                                             <Button size="sm" className="bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-9 px-4" onClick={(e) => e.preventDefault()}>
                                                 <ShoppingCart className="h-3 w-3 mr-2" />
@@ -345,7 +347,7 @@ export default function ShopPage() {
                                         <div className="flex items-end justify-between pt-1">
                                             <div>
                                                 <div className="text-lg font-bold text-[#111827]">₦8,500</div>
-                                                <div className="text-xs text-gray-500">≈ 0.005 ETH</div>
+                                                <div className="text-xs text-gray-500">≈ 5.31 CAMP</div>
                                             </div>
                                             <Button size="sm" className="bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-9 px-4" onClick={(e) => e.preventDefault()}>
                                                 <ShoppingCart className="h-3 w-3 mr-2" />
@@ -403,7 +405,7 @@ export default function ShopPage() {
                                         <div className="flex items-end justify-between pt-1">
                                             <div>
                                                 <div className="text-lg font-bold text-[#111827]">₦28,900</div>
-                                                <div className="text-xs text-gray-500">≈ 0.018 ETH</div>
+                                                <div className="text-xs text-gray-500">≈ 18.06 CAMP</div>
                                             </div>
                                             <Button size="sm" className="bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-9 px-4" onClick={(e) => e.preventDefault()}>
                                                 <ShoppingCart className="h-3 w-3 mr-2" />
@@ -460,7 +462,7 @@ export default function ShopPage() {
                                         <div className="flex items-end justify-between pt-1">
                                             <div>
                                                 <div className="text-lg font-bold text-[#111827]">₦16,500</div>
-                                                <div className="text-xs text-gray-500">≈ 0.010 ETH</div>
+                                                <div className="text-xs text-gray-500">≈ 10.31 CAMP</div>
                                             </div>
                                             <Button size="sm" className="bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-9 px-4" onClick={(e) => e.preventDefault()}>
                                                 <ShoppingCart className="h-3 w-3 mr-2" />
@@ -517,7 +519,7 @@ export default function ShopPage() {
                                         <div className="flex items-end justify-between pt-1">
                                             <div>
                                                 <div className="text-lg font-bold text-[#111827]">₦9,800</div>
-                                                <div className="text-xs text-gray-500">≈ 0.006 ETH</div>
+                                                <div className="text-xs text-gray-500">≈ 6.12 CAMP</div>
                                             </div>
                                             <Button size="sm" className="bg-[#1D4ED8] hover:bg-[#1D4ED8]/90 text-white font-bold h-9 px-4" onClick={(e) => e.preventDefault()}>
                                                 <ShoppingCart className="h-3 w-3 mr-2" />

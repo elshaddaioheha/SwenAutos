@@ -23,7 +23,7 @@ const PRODUCT = {
     name: "OEM Toyota Camry Engine Oil Filter",
     partNumber: "90915-YZZF2",
     price: 45000,
-    priceEth: 0.028,
+    priceCamp: 28.12, // 45000 / 1600
     description: "This genuine OEM Toyota oil filter is designed specifically for Toyota Camry models from 2018-2024. Manufactured to Toyota's exact specifications, it provides superior filtration and engine protection compared to aftermarket alternatives.",
     rating: 4.8,
     reviews: 342,
@@ -67,10 +67,10 @@ const PRODUCT = {
 };
 
 const RELATED_PRODUCTS = [
-    { id: "2", name: "Air Filter - Toyota Camry", price: 8500, eth: 0.005, image: "/placeholder-part.png" },
-    { id: "3", name: "Spark Plugs Set (4pcs)", price: 18000, eth: 0.011, image: "/placeholder-part.png" },
-    { id: "4", name: "Engine Oil 5W-30 (4L)", price: 32000, eth: 0.020, image: "/placeholder-part.png" },
-    { id: "5", name: "Fuel Filter - Camry", price: 15500, eth: 0.010, image: "/placeholder-part.png" },
+    { id: "2", name: "Air Filter - Toyota Camry", price: 8500, camp: 5.31, image: "/placeholder-part.png" },
+    { id: "3", name: "Spark Plugs Set (4pcs)", price: 18000, camp: 11.25, image: "/placeholder-part.png" },
+    { id: "4", name: "Engine Oil 5W-30 (4L)", price: 32000, camp: 20.00, image: "/placeholder-part.png" },
+    { id: "5", name: "Fuel Filter - Camry", price: 15500, camp: 9.69, image: "/placeholder-part.png" },
 ];
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -80,7 +80,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     const [activeTab, setActiveTab] = useState("description");
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState(0);
-    const [priceCurrency, setPriceCurrency] = useState<"NGN" | "ETH">("NGN");
+    const [priceCurrency, setPriceCurrency] = useState<"NGN" | "CAMP">("NGN");
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [loginAction, setLoginAction] = useState<"add" | "buy" | null>(null);
