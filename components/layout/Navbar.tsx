@@ -62,17 +62,15 @@ export function Navbar() {
                         />
                     </div>
 
-                    {/* Cart Icon (Desktop) - Only show for non-authenticated users and buyers */}
-                    {!authenticated && (
-                        <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors relative p-2 rounded-full hover:bg-gray-100">
-                            <ShoppingCart className="h-5 w-5" />
-                            {totalItems > 0 && (
-                                <span className="absolute top-0 right-0 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
-                                    {totalItems}
-                                </span>
-                            )}
-                        </Link>
-                    )}
+                    {/* Cart Icon (Desktop) */}
+                    <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors relative p-2 rounded-full hover:bg-gray-100">
+                        <ShoppingCart className="h-5 w-5" />
+                        {totalItems > 0 && (
+                            <span className="absolute top-0 right-0 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
+                                {totalItems}
+                            </span>
+                        )}
+                    </Link>
 
                     {isLoading ? (
                         <div className="hidden md:flex items-center space-x-4">
@@ -142,20 +140,18 @@ export function Navbar() {
                             >
                                 Shop
                             </Link>
-                            {!authenticated && (
-                                <Link
-                                    href="/cart"
-                                    className="text-base font-medium text-gray-600 hover:text-primary py-2 flex items-center justify-between"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Cart
-                                    {totalItems > 0 && (
-                                        <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold">
-                                            {totalItems} Items
-                                        </span>
-                                    )}
-                                </Link>
-                            )}
+                            <Link
+                                href="/cart"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2 flex items-center justify-between"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Cart
+                                {totalItems > 0 && (
+                                    <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold">
+                                        {totalItems} Items
+                                    </span>
+                                )}
+                            </Link>
                             <Link
                                 href="/about"
                                 className="text-base font-medium text-gray-600 hover:text-primary py-2"
