@@ -437,7 +437,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                                     <div className="flex items-end justify-between">
                                         <div>
                                             <div className="text-lg font-bold text-primary">₦{product.price.toLocaleString()}</div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400">≈ {product.eth} ETH</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400">≈ {product.camp} CAMP</div>
                                         </div>
                                         <button className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90 transition-colors">
                                             <ShoppingCart className="h-4 w-4" />

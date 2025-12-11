@@ -58,3 +58,11 @@ build_output.txt
 hardhat-sandbox-clean/
 CONVERSATION_SUMMARY.md
 PROJECT_REVIEW.md
+
+# Logs
+build_error.txt
+build_log.txt
+contracts_test.log
+test_debug.log
+test_output.txt
+*_test_result*.json
