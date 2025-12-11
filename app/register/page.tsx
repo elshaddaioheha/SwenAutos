@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    ArrowLeft, Eye, EyeOff, Check, X, ChevronDown, ArrowRight, User, Store
+    ArrowLeft, Eye, EyeOff, Check, ArrowRight, User, Store
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,18 +17,18 @@ export default function RegisterPage() {
     const { login } = useAuth();
     const [step, setStep] = useState(1); // 1: Info, 2: Verification
     const [isLoading, setIsLoading] = useState(false);
+    const [verifying, setVerifying] = useState(false);
 
     // Form State
     const [role, setRole] = useState<"buyer" | "seller">("buyer");
     const [businessName, setBusinessName] = useState("");
-    const [verifyVia, setVerifyVia] = useState<"phone" | "email">("phone");
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [agreedToTerms, setAgreedToTerms] = useState(false);
-    const [verificationCode, setVerificationCode] = useState("");
+    const [otpCode, setOtpCode] = useState("");
 
     // UI State
     const [showPassword, setShowPassword] = useState(false);
@@ -47,7 +47,6 @@ export default function RegisterPage() {
         fullName.length > 2 &&
         email.includes("@") &&
         phone.length > 5 &&
-        // For sellers we require a business name
         (role === "buyer" ? true : businessName.length > 2) &&
         isPasswordValid &&
         doPasswordsMatch &&
@@ -60,6 +59,9 @@ export default function RegisterPage() {
         setIsLoading(true);
 
         try {
+            // We use signUp. Supabase by default sends a link. 
+            // If the project is configured to send OTP, verifyOtp will work.
+            // Even if it sends a link, the 'token' in the link is often the OTP.
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -79,7 +81,7 @@ export default function RegisterPage() {
                 return;
             }
 
-            // If successful, move to verification step (which we'll repurpose as "Check Email")
+            // Move to verification step
             setIsLoading(false);
             setStep(2);
 
@@ -90,10 +92,41 @@ export default function RegisterPage() {
         }
     };
 
-    // handleVerify is no longer needed for email link verification, 
-    // but we might keep it if we implement OTP later. 
-    // For now, we'll just remove it or leave it empty/unused if the UI changes.
-    // I will remove it and update the UI to not use it.
+    const handleVerifyOtp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setVerifying(true);
+        try {
+            const { data, error } = await supabase.auth.verifyOtp({
+                email,
+                token: otpCode,
+                type: 'signup'
+            });
+
+            if (error) {
+                alert(error.message);
+                setVerifying(false);
+                return;
+            }
+
+            if (data.session) {
+                // Determine redirect based on role
+                const userRole = data.user?.user_metadata?.role || "buyer";
+                if (userRole === "seller") {
+                    router.push("/dashboard");
+                } else {
+                    router.push("/shop");
+                }
+            } else {
+                // If no session, maybe they need to login manually
+                router.push("/login");
+            }
+
+        } catch (err) {
+            console.error("Verification error:", err);
+            alert("Verification failed. Please try again.");
+            setVerifying(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col items-center py-8 px-4 transition-colors duration-300">
@@ -104,7 +137,7 @@ export default function RegisterPage() {
                     <ArrowLeft className="h-6 w-6 text-gray-900 dark:text-white" />
                 </Link>
                 <h1 className="text-gray-900 dark:text-white font-bold text-2xl md:text-[28px] mx-auto font-manrope">
-                    {step === 1 ? "Create Account" : "Verify Account"}
+                    {step === 1 ? "Create Account" : "Verify Email"}
                 </h1>
             </div>
 
@@ -196,45 +229,18 @@ export default function RegisterPage() {
                                     />
                                 </div>
 
-                                {/* Verification method */}
-                                <div className="space-y-1.5">
-                                    <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">Verify via</label>
-                                    <div className="flex gap-3">
-                                        <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'phone' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
-                                            <input type="radio" name="verifyVia" value="phone" checked={verifyVia === 'phone'} onChange={() => setVerifyVia('phone')} className="mr-2" /> Phone
-                                        </label>
-                                        <label className={`px-3 py-2 rounded-xl border ${verifyVia === 'email' ? 'border-primary bg-primary/5 text-primary' : 'border-gray-200 dark:border-gray-700 text-gray-500'}`}>
-                                            <input type="radio" name="verifyVia" value="email" checked={verifyVia === 'email'} onChange={() => setVerifyVia('email')} className="mr-2" /> Email
-                                        </label>
-                                    </div>
-                                </div>
-
                                 {/* Phone Number */}
                                 <div className="space-y-1.5">
                                     <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope flex">
                                         Phone Number <span className="text-red-500 ml-1">*</span>
                                     </label>
-                                    <div className="flex gap-3">
-                                        <div className="w-24 flex-shrink-0 relative">
-                                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
-                                                <span className="text-sm font-medium">🇳🇬</span>
-                                            </div>
-                                            <select className="h-12 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-8 pr-2 text-sm appearance-none focus:ring-2 focus:ring-primary outline-none text-gray-900 dark:text-white transition-colors">
-                                                <option>+234</option>
-                                            </select>
-                                            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
-                                        </div>
-                                        <Input
-                                            type="tel"
-                                            value={phone}
-                                            onChange={(e) => setPhone(e.target.value)}
-                                            placeholder="80 123 45678"
-                                            className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 flex-1 text-gray-900 dark:text-white"
-                                        />
-                                    </div>
-                                    <p className="text-gray-500 dark:text-gray-400 text-[13px] font-manrope">
-                                        {verifyVia === 'phone' ? "We'll send a verification code to this number" : "We'll send a verification link/code to your email"}
-                                    </p>
+                                    <Input
+                                        type="tel"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="+234 80 123 45678"
+                                        className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                    />
                                 </div>
 
                                 {/* Password */}
@@ -271,26 +277,6 @@ export default function RegisterPage() {
                                                     }`}
                                             />
                                         ))}
-                                    </div>
-                                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2 transition-colors">
-                                        <div className="flex items-center gap-2">
-                                            <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${hasLength ? "bg-green-100 dark:bg-green-900/30 border-green-500" : "border-gray-300 dark:border-gray-600"}`}>
-                                                {hasLength && <Check className="h-2.5 w-2.5 text-green-600 dark:text-green-500" />}
-                                            </div>
-                                            <span className={`text-[13px] ${hasLength ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>At least 8 characters</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${hasUppercase ? "bg-green-100 dark:bg-green-900/30 border-green-500" : "border-gray-300 dark:border-gray-600"}`}>
-                                                {hasUppercase && <Check className="h-2.5 w-2.5 text-green-600 dark:text-green-500" />}
-                                            </div>
-                                            <span className={`text-[13px] ${hasUppercase ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>One uppercase letter</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${hasNumber ? "bg-green-100 dark:bg-green-900/30 border-green-500" : "border-gray-300 dark:border-gray-600"}`}>
-                                                {hasNumber && <Check className="h-2.5 w-2.5 text-green-600 dark:text-green-500" />}
-                                            </div>
-                                            <span className={`text-[13px] ${hasNumber ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400"}`}>One number</span>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -329,7 +315,6 @@ export default function RegisterPage() {
                                             placeholder="Your shop or business name"
                                             className="h-12 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                                         />
-                                        <p className="text-gray-500 text-xs">This helps buyers find you and sets up your storefront identity.</p>
                                     </div>
                                 )}
 
@@ -370,26 +355,44 @@ export default function RegisterPage() {
                         <>
                             {/* Verification Step */}
                             <div className="text-center mb-8">
-                                <h2 className="text-gray-900 dark:text-white font-bold text-2xl mb-2 font-manrope">Check Your Email</h2>
+                                <h2 className="text-gray-900 dark:text-white font-bold text-2xl mb-2 font-manrope">Verification</h2>
                                 <p className="text-gray-500 dark:text-gray-400 text-[15px] font-manrope">
-                                    We sent a confirmation link to <span className="font-bold text-gray-900 dark:text-white">{email}</span>.
-                                    Please click the link to verify your account.
+                                    We sent a code to <span className="font-bold text-gray-900 dark:text-white">{email}</span>.
+                                    Enter it below to verify your account.
                                 </p>
                             </div>
 
-                            <div className="space-y-6">
+                            <form onSubmit={handleVerifyOtp} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-gray-900 dark:text-white font-bold text-sm font-manrope">Verification Code</label>
+                                    <Input
+                                        value={otpCode}
+                                        onChange={(e) => setOtpCode(e.target.value)}
+                                        placeholder="Enter 6-digit code"
+                                        className="h-12 rounded-xl text-center text-lg tracking-widest border-gray-200 dark:border-gray-700 focus-visible:ring-primary bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                        maxLength={6}
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-500">
+                                        If you received a link instead, please click it to verify directly.
+                                    </p>
+                                </div>
+
                                 <Button
-                                    type="button"
-                                    onClick={() => router.push('/login')}
+                                    type="submit"
+                                    disabled={verifying || otpCode.length < 6}
                                     className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-xl shadow-lg shadow-blue-500/20 transition-all"
                                 >
-                                    Go to Login
+                                    {verifying ? "Verifying..." : "Verify & Login"}
                                 </Button>
 
                                 <p className="text-center text-sm text-gray-500">
-                                    Didn't receive the email? <button type="button" className="text-primary font-bold hover:underline" onClick={() => alert("Please check your spam folder.")}>Resend</button>
+                                    Didn't receive code? <button type="button" className="text-primary font-bold hover:underline" onClick={() => {
+                                        setStep(1);
+                                        // Ideally call a resend endpoint if available
+                                    }}>Change Email</button>
                                 </p>
-                            </div>
+                            </form>
                         </>
                     )}
                 </div>
