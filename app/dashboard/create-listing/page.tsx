@@ -7,13 +7,48 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useAuthState } from "@campnetwork/origin/react";
+import { LoginButton } from "@/components/auth/LoginButton";
+
+function WalletRequiredCard() {
+    return (
+        <div className="container max-w-lg mx-auto py-20 px-4">
+            <Card className="text-center border-blue-200 bg-blue-50">
+                <CardHeader>
+                    <div className="mx-auto bg-blue-100 p-3 rounded-full w-fit mb-4">
+                        <Wallet className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <CardTitle className="text-blue-800">Wallet Connection Required</CardTitle>
+                    <CardDescription className="text-blue-700">
+                        To create a listing on the blockchain, you must connect your crypto wallet.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-sm text-gray-600">
+                        Connecting your wallet allows you to sign transactions and prove ownership of your listings.
+                    </p>
+                    <div className="flex justify-center">
+                        <div className="w-full max-w-xs">
+                            <LoginButton />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
 
 function CreateListingContent() {
     const { createListing, isPending, isConfirming, isConfirmed, hash, error } = useProductListing();
     const router = useRouter();
+    const { authenticated } = useAuthState();
+
+    if (!authenticated) {
+        return <WalletRequiredCard />;
+    }
 
     const [formData, setFormData] = useState({
         name: "",

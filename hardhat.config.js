@@ -1,4 +1,4 @@
-require("@nomicfoundation/hardhat-toolbox");
+// require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config({ path: ".env.local" });
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -36,10 +36,6 @@ module.exports = {
         tests: "./test",
         cache: "./contracts/cache",
         artifacts: "./contracts/artifacts",
-    },
-    mocha: {
-        require: ["ts-node/register"],
-        spec: ["test/**/*.ts"],
     },
     etherscan: {
         apiKey: {

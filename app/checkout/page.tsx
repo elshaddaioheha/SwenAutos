@@ -14,9 +14,10 @@ import {
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useAuthState } from "@campnetwork/origin/react";
 import DeliveryOptions from "@/components/checkout/DeliveryOptions";
+import { PaystackButton } from "@/components/checkout/PaystackButton";
 
 export default function CheckoutPage() {
-    const { isAuthenticated: localAuth, isLoading: localLoading } = useAuth();
+    const { isAuthenticated: localAuth, user, isLoading: localLoading } = useAuth();
     const { authenticated: web3Auth, loading: web3Loading } = useAuthState();
     const [deliveryMethod, setDeliveryMethod] = useState("home");
     const [deliveryFee, setDeliveryFee] = useState<number>(2500);
@@ -329,13 +330,21 @@ export default function CheckoutPage() {
                                     <ChevronLeft className="w-4 h-4" /> Back to Cart
                                 </Button>
                                 {paymentType === "naira" && (
-                                    <Button
-                                        onClick={handlePayment}
+                                    <PaystackButton
+                                        email={user?.email || "customer@example.com"}
+                                        amount={58800 + deliveryFee}
+                                        onSuccess={(reference) => {
+                                            console.log("Payment complete", reference);
+                                            handlePayment();
+                                        }}
+                                        onClose={() => {
+                                            console.log("Payment closed");
+                                            setIsProcessing(false);
+                                        }}
                                         disabled={isProcessing}
+                                        label={isProcessing ? "Processing..." : "Complete Payment"}
                                         className="w-full md:w-auto h-12 bg-primary hover:bg-primary/90 text-white font-bold px-8 rounded-xl shadow-lg shadow-blue-600/20"
-                                    >
-                                        {isProcessing ? "Processing..." : "Complete Payment"}
-                                    </Button>
+                                    />
                                 )}
                             </div>
                         </div>

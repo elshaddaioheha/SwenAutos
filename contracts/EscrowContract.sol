@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 // Counters removed; using simple uint256 counters
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./ProductListingContract.sol";
@@ -178,7 +178,7 @@ contract EscrowContract is Ownable, ReentrancyGuard {
     }
 
     // Constructor
-    constructor(address productListingAddress) {
+    constructor(address productListingAddress) Ownable(msg.sender) {
         require(productListingAddress != address(0), "Invalid ProductListing address");
         productListingContract = ProductListingContract(productListingAddress);
         arbitrator = msg.sender;
@@ -226,8 +226,32 @@ contract EscrowContract is Ownable, ReentrancyGuard {
         PaymentMethod paymentMethod,
         string memory externalPaymentId
     ) external nonReentrant returns (uint256) {
+        // Fetch product details directly from the listing contract
+        (
+            uint256 listedId,
+            address listedSeller,
+            ,
+            ,
+            ,
+            uint256 listedPrice,
+            address listedToken,
+            uint256 listedInventory,
+            ,
+            ,
+            bool listedIsActive,
+            ,
+        ) = productListingContract.products(productId);
+        
+        // Validation Logic
+        require(listedId == productId, "Product ID mismatch");
+        require(listedSeller == seller, "Seller mismatch");
+        require(listedSeller != msg.sender, "Cannot purchase from yourself");
+        require(listedPrice == amount, "Incorrect price sent");
+        require(listedToken == paymentToken, "Incorrect payment token");
+        require(listedIsActive, "Product is not active");
+        require(listedInventory > 0, "Product is out of stock");
+
         require(seller != address(0), "Invalid seller address");
-        require(seller != msg.sender, "Cannot purchase from yourself");
         require(amount > 0, "Amount must be greater than 0");
         require(paymentToken != address(0), "Invalid payment token address");
 

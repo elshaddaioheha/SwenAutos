@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/components/providers/CartProvider';
+import { useToast } from '@/components/ToastProvider';
 
 interface ProductCardProps {
     id: string;
     name: string;
     price: number;
-    priceETH?: number;
+    priceCamp?: number;
     image: string;
     rating: number;
     reviews: number;
@@ -19,9 +20,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({
-    id, name, price, priceETH = 0, image, rating, reviews, category, inStock = true
+    id, name, price, priceCamp = 0, image, rating, reviews, category, inStock = true
 }: ProductCardProps) {
     const { addItem } = useCart();
+    const toast = useToast();
     return (
         <div className="group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-all hover:shadow-lg">
             <Link href={`/product/${id}`} className="relative aspect-square overflow-hidden bg-secondary/50 block">
@@ -86,9 +88,9 @@ export function ProductCard({
                         <span className="text-lg font-bold text-primary">
                             {formatCurrency(price)}
                         </span>
-                        {priceETH > 0 && (
-                            <span className="text-xs text-muted-foreground">
-                                ≈ {priceETH} ETH
+                        {priceCamp > 0 && (
+                            <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                {priceCamp} CAMP
                             </span>
                         )}
                     </div>
@@ -100,6 +102,10 @@ export function ProductCard({
                         onClick={(e) => {
                             e.preventDefault();
                             addItem({ id, name, price, image });
+                            toast.push({
+                                type: 'success',
+                                message: 'Added to cart'
+                            });
                         }}
                     >
                         <ShoppingCart className="h-4 w-4" />
@@ -107,6 +113,6 @@ export function ProductCard({
                     </Button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

@@ -9,9 +9,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthState } from '@campnetwork/origin/react';
 import { UserProfile } from '@/components/auth/UserProfile';
 import { useCart } from '@/components/providers/CartProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export function Navbar() {
-    const { authenticated } = useAuthState();
+    const { authenticated: web3Authenticated, loading: web3Loading } = useAuthState();
+    const { isAuthenticated: localAuthenticated, user, isLoading: localLoading } = useAuth();
+    const authenticated = web3Authenticated || localAuthenticated;
+    const isLoading = web3Loading || localLoading;
     const { totalItems } = useCart();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const router = useRouter();
@@ -29,21 +33,25 @@ export function Navbar() {
 
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center space-x-8">
-                    <Link href="/" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        Home
-                    </Link>
-                    <Link href="/shop" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        Shop
-                    </Link>
-                    <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        About Us
-                    </Link>
-                    <Link href="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        How It Works
-                    </Link>
-                    <Link href="/vendor" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        Become a Vendor
-                    </Link>
+                    {!authenticated && (
+                        <>
+                            <Link href="/" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                Home
+                            </Link>
+                            <Link href="/shop" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                Shop
+                            </Link>
+                            <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                About Us
+                            </Link>
+                            <Link href="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                How It Works
+                            </Link>
+                            <Link href="/vendor" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                Become a Vendor
+                            </Link>
+                        </>
+                    )}
                 </nav>
 
                 {/* Right Actions */}
@@ -58,19 +66,22 @@ export function Navbar() {
                         />
                     </div>
 
-                    {/* Cart Icon (Desktop) - Only show for non-authenticated users and buyers */}
-                    {!authenticated && (
-                        <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors relative p-2 rounded-full hover:bg-gray-100">
-                            <ShoppingCart className="h-5 w-5" />
-                            {totalItems > 0 && (
-                                <span className="absolute top-0 right-0 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
-                                    {totalItems}
-                                </span>
-                            )}
-                        </Link>
-                    )}
+                    {/* Cart Icon (Desktop) */}
+                    <Link href="/cart" className="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors relative p-2 rounded-full hover:bg-gray-100">
+                        <ShoppingCart className="h-5 w-5" />
+                        {totalItems > 0 && (
+                            <span className="absolute top-0 right-0 bg-primary text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold border-2 border-white">
+                                {totalItems}
+                            </span>
+                        )}
+                    </Link>
 
-                    {authenticated ? (
+                    {isLoading ? (
+                        <div className="hidden md:flex items-center space-x-4">
+                            <div className="h-10 w-20 bg-gray-200 rounded-md animate-pulse" />
+                            <div className="h-10 w-24 bg-gray-200 rounded-md animate-pulse" />
+                        </div>
+                    ) : authenticated ? (
                         <UserProfile />
                     ) : (
                         <div className="hidden md:flex items-center space-x-4">
@@ -133,41 +144,43 @@ export function Navbar() {
                             >
                                 Shop
                             </Link>
+                            <Link
+                                href="/cart"
+                                className="text-base font-medium text-gray-600 hover:text-primary py-2 flex items-center justify-between"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Cart
+                                {totalItems > 0 && (
+                                    <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold">
+                                        {totalItems} Items
+                                    </span>
+                                )}
+                            </Link>
                             {!authenticated && (
-                                <Link
-                                    href="/cart"
-                                    className="text-base font-medium text-gray-600 hover:text-primary py-2 flex items-center justify-between"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Cart
-                                    {totalItems > 0 && (
-                                        <span className="bg-primary text-white text-xs rounded-full px-2 py-0.5 font-bold">
-                                            {totalItems} Items
-                                        </span>
-                                    )}
-                                </Link>
+                                <>
+                                    <Link
+                                        href="/about"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        About Us
+                                    </Link>
+                                    <Link
+                                        href="/how-it-works"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        How It Works
+                                    </Link>
+                                    <Link
+                                        href="/vendor"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Become a Vendor
+                                    </Link>
+                                </>
                             )}
-                            <Link
-                                href="/about"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                About Us
-                            </Link>
-                            <Link
-                                href="/how-it-works"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                How It Works
-                            </Link>
-                            <Link
-                                href="/vendor"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Become a Vendor
-                            </Link>
 
                             {authenticated ? (
                                 <>
@@ -177,6 +190,13 @@ export function Navbar() {
                                         onClick={() => setIsMenuOpen(false)}
                                     >
                                         Dashboard
+                                    </Link>
+                                    <Link
+                                        href="/orders"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        My Orders
                                     </Link>
                                     <div className="pt-4 border-t border-gray-100">
                                         <Button

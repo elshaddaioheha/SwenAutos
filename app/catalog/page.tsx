@@ -4,35 +4,39 @@ import { FilterSidebar } from "@/components/catalog/FilterSidebar";
 import { ProductCard } from "@/components/ui/product-card";
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal, Loader2 } from "lucide-react";
-import { formatEther } from "viem";
 import { Select } from "@/components/ui/select";
 import { useState } from "react";
 
-// import { useAllProducts } from "@/hooks/useProductListing";
-// ...
+import { useAllProducts } from "@/hooks/useProductListing";
+import { formatEther } from "viem";
 
 export default function CatalogPage() {
-    // const { products, isLoading, isError } = useAllProducts();
-    const isLoading = false;
-    const isError = false;
-    const products = [
-        { productId: "1", name: "Engine Oil Filter - Toyota Camry", price: BigInt(12000000000000000), category: "Engine", ipfsHash: "/placeholder-part.png" },
-        { productId: "2", name: "Brake Pads Set - Honda Accord", price: BigInt(28000000000000000), category: "Brakes", ipfsHash: "/placeholder-part.png" },
-    ];
+    const { products: rawProducts, isLoading, isError } = useAllProducts(0, 50); // Fetch first 50
     const [sortBy, setSortBy] = useState("recent");
 
     // Helper to format blockchain product to UI product
     const formatProduct = (p: any) => {
+        // Handle potential empty/invalid data safely
+        if (!p) return null;
+
+        const campPrice = p.price ? parseFloat(formatEther(p.price)) : 0;
         return {
-            id: p.productId.toString(),
-            name: p.name,
-            price: parseFloat(formatEther(p.price)),
-            rating: 0, // Not yet implemented on chain
-            reviews: 0,
-            category: p.category,
-            image: p.ipfsHash || "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=500", // Fallback image
+            id: p.productId?.toString() || "0",
+            name: p.name || "Unknown Product",
+            price: campPrice * 1600, // Approximate NGN price (1 CAMP = 1600 NGN fixed for now)
+            priceCamp: campPrice,
+            rating: 4.5, // Mock rating until implemented
+            reviews: 10, // Mock reviews
+            category: p.category || "General",
+            image: p.ipfsHash ?
+                (p.ipfsHash.startsWith("http") ? p.ipfsHash :
+                    p.ipfsHash.startsWith("ipfs://") ? p.ipfsHash.replace("ipfs://", "https://ipfs.io/ipfs/") :
+                        `https://ipfs.io/ipfs/${p.ipfsHash}`) :
+                "/placeholder-part.png",
         };
     };
+
+    const products = rawProducts ? rawProducts.map(formatProduct).filter(Boolean) : [];
 
     return (
         <div className="container px-4 md:px-6 py-8">
@@ -89,7 +93,7 @@ export default function CatalogPage() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {products.map((product: any) => (
-                                <ProductCard key={product.productId.toString()} {...formatProduct(product)} />
+                                <ProductCard key={product.id} {...product} />
                             ))}
                         </div>
                     )}

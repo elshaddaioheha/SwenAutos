@@ -1,68 +1,125 @@
 "use client";
 
-import { useConnect, useAuthState } from "@campnetwork/origin/react";
-import { useAccount } from "wagmi";
+import { useAuthState } from "@campnetwork/origin/react";
+import { useAccount, useConnect } from "wagmi";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Loader2, Wallet } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { useToast } from "@/components/ToastProvider";
+import { supabase } from "@/lib/supabase";
 
 interface LoginButtonProps {
     redirectUrl?: string;
+    onSuccess?: () => void;
 }
 
-export function LoginButton({ redirectUrl = "/dashboard" }: LoginButtonProps) {
-    const { connect } = useConnect();
+export function LoginButton({ redirectUrl = "/dashboard", onSuccess }: LoginButtonProps) {
+    const { connectors, connect } = useConnect();
     const { authenticated, loading } = useAuthState();
-    const { address } = useAccount();
+    const { address, isConnected } = useAccount();
     const router = useRouter();
     const { login } = useAuth();
+    const { push } = useToast();
+    const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
-        if (authenticated && address) {
-            // Sync with local AuthProvider
-            login({
-                id: address,
-                name: `User ${address.slice(0, 6)}`,
-                email: "", // Wallet users might not have email yet
-                role: "buyer" // Default to buyer for wallet login
-            });
+        const checkUserRoleAndLogin = async () => {
+            if (isConnected && address) {
+                // Check Supabase for existing user with this wallet
+                let userRole = "buyer"; // Default
+                let userName = `User ${address.slice(0, 6)}`;
+                let userEmail = "";
 
-            // User is authenticated, redirect
-            router.push(redirectUrl);
-        }
-    }, [authenticated, address, router, redirectUrl, login]);
+                try {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('wallet_address', address)
+                        .single();
+
+                    if (data) {
+                        userRole = data.role || "buyer";
+                        userName = data.full_name || userName;
+                        userEmail = data.email || "";
+                    } else {
+                        // Optional: Check blockchain here if needed, or stick to default "buyer"
+                    }
+                } catch (err) {
+                    console.error("Error checking user role:", err);
+                }
+
+                // Sync with local AuthProvider
+                login({
+                    id: address,
+                    name: userName,
+                    email: userEmail,
+                    role: userRole as "buyer" | "seller"
+                });
+
+                push({ type: "success", message: `Wallet connected as ${userRole}!` });
+
+                if (onSuccess) {
+                    onSuccess();
+                } else {
+                    // Dynamic Redirect
+                    if (userRole === "seller") {
+                        router.push("/dashboard");
+                    } else {
+                        // Use provided redirectUrl if it's not the default dashboard, otherwise go to shop
+                        if (redirectUrl && redirectUrl !== "/dashboard") {
+                            router.push(redirectUrl);
+                        } else {
+                            router.push("/shop");
+                        }
+                    }
+                }
+            }
+        };
+
+        checkUserRoleAndLogin();
+    }, [isConnected, address, router, redirectUrl, push, onSuccess, login]);
 
     const handleLogin = async () => {
+        setIsConnecting(true);
         try {
-            // Check if window.ethereum exists (basic check for wallet presence)
+            // Check if window.ethereum exists
             if (typeof window !== 'undefined' && !(window as any).ethereum) {
-                alert("No crypto wallet found. Please install MetaMask or another wallet.");
+                push({ type: "error", message: "No crypto wallet found. Please install MetaMask." });
+                setIsConnecting(false);
                 return;
             }
-            await connect();
+
+            // Explicitly use the first available connector (usually injected/MetaMask)
+            const connector = connectors[0];
+            if (!connector) {
+                push({ type: "error", message: "No wallet connector found." });
+                setIsConnecting(false);
+                return;
+            }
+
+            connect({ connector });
         } catch (error) {
             console.error("Login failed:", error);
-            // The specific error "Cannot read properties of null (reading 'requestAddresses')"
-            // often happens if the provider is not ready or if the user cancels too quickly/unexpectedly.
-            // We can show a user-friendly alert.
-            alert("Failed to connect wallet. Please try again or ensure your wallet is unlocked.");
+            push({ type: "error", message: "Failed to connect wallet. Please try again." });
+            setIsConnecting(false);
         }
     };
 
     return (
         <Button
             onClick={handleLogin}
-            disabled={loading || authenticated}
+            disabled={loading || isConnected || isConnecting}
             className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold text-base rounded-xl shadow-lg shadow-blue-600/20"
         >
-            {loading ? (
+            {loading || isConnecting ? (
                 <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Connecting...
                 </>
-            ) : authenticated ? (
+            ) : isConnected ? (
                 "Redirecting..."
             ) : (
                 <>

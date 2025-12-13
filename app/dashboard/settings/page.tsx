@@ -7,6 +7,9 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { User, Lock, Mail, Store, Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useAccount, useConnect, useSignMessage } from "wagmi";
+import { supabase } from "@/lib/supabase";
+import { Wallet } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -25,17 +28,34 @@ export default function SettingsPage() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
-    const handleUpdateProfile = (e: React.FormEvent) => {
+    // Wallet Linking State
+    const { address, isConnected } = useAccount();
+    const { connectors, connect } = useConnect();
+    const { signMessageAsync } = useSignMessage();
+    const [isLinkingWallet, setIsLinkingWallet] = useState(false);
+
+    const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
         setIsLoading(true);
         setMessage(null);
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ full_name: name, email })
+                .eq('id', user.id);
+
+            if (error) throw error;
+
             updateUser({ name, email });
-            setIsLoading(false);
             setMessage({ type: "success", text: "Profile updated successfully!" });
-        }, 1000);
+        } catch (error: any) {
+            console.error("Profile update error:", error);
+            setMessage({ type: "error", text: error.message || "Failed to update profile." });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleUpdatePassword = (e: React.FormEvent) => {
@@ -57,17 +77,78 @@ export default function SettingsPage() {
         }, 1000);
     };
 
-    const handleSwitchRole = () => {
+    const handleSwitchRole = async () => {
+        if (!user) return;
         setIsLoading(true);
         setMessage(null);
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
             const newRole = user?.role === "buyer" ? "seller" : "buyer";
+            const { error } = await supabase
+                .from('profiles')
+                .update({ role: newRole })
+                .eq('id', user.id);
+
+            if (error) throw error;
+
             updateUser({ role: newRole });
-            setIsLoading(false);
             setMessage({ type: "success", text: `Switched to ${newRole} mode successfully!` });
-        }, 1000);
+        } catch (error: any) {
+            console.error("Role switch error:", error);
+            setMessage({ type: "error", text: error.message || "Failed to switch role." });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleLinkWallet = async () => {
+        if (!user) return;
+        setIsLinkingWallet(true);
+        setMessage(null);
+
+        try {
+            if (!isConnected || !address) {
+                // Connect Logic
+                const connector = connectors[0];
+                if (connector) {
+                    connect({ connector });
+                    // Connection is async, we rely on checking checking isConnected in a useEffect or similar,
+                    // but wagmi's connect might not resolve strictly after connection is "ready" for signing immediately in all cases
+                    // simplified for this flow: assume user has to click again or we wait?
+                    // actually if we call connect, we likely can't immediately sign in the same handler if it prompts user.
+                    // Better UX: Button changes to "Verify & Link" if connected but not linked.
+                    // For now, let's assume if not connected, we connect.
+                    setMessage({ type: "success", text: "Wallet connected! Click again to verify and link." });
+                    setIsLinkingWallet(false);
+                    return;
+                } else {
+                    throw new Error("No wallet connector found");
+                }
+            }
+
+            // Sign Message
+            const messageToSign = `Link wallet ${address} to user ${user.id}`;
+            await signMessageAsync({ message: messageToSign });
+
+            // Update Supabase
+            const { error } = await supabase
+                .from('profiles')
+                .update({ wallet_address: address })
+                .eq('id', user.id); // Assuming user.id matches auth.uid() and primary key
+
+            if (error) throw error;
+
+            // Update local user context if needed (maybe adding wallet_address field to user object? or just rely on DB)
+            // updateUser({ wallet_address: address }); // If updateUser supports it
+
+            setMessage({ type: "success", text: "Wallet linked successfully!" });
+
+        } catch (err: any) {
+            console.error("Linking error:", err);
+            setMessage({ type: "error", text: err.message || "Failed to link wallet." });
+        } finally {
+            setIsLinkingWallet(false);
+        }
     };
 
     if (!user) {
@@ -172,43 +253,71 @@ export default function SettingsPage() {
                             )}
 
                             {activeTab === "security" && (
-                                <form onSubmit={handleUpdatePassword} className="space-y-6">
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Change Password</h2>
+                                <>
+                                    <form onSubmit={handleUpdatePassword} className="space-y-6">
+                                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Change Password</h2>
 
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-900 dark:text-white">Current Password</label>
-                                        <Input
-                                            type="password"
-                                            value={currentPassword}
-                                            onChange={(e) => setCurrentPassword(e.target.value)}
-                                            className="h-12 rounded-xl"
-                                        />
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-gray-900 dark:text-white">Current Password</label>
+                                            <Input
+                                                type="password"
+                                                value={currentPassword}
+                                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                                className="h-12 rounded-xl"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-gray-900 dark:text-white">New Password</label>
+                                            <Input
+                                                type="password"
+                                                value={newPassword}
+                                                onChange={(e) => setNewPassword(e.target.value)}
+                                                className="h-12 rounded-xl"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-bold text-gray-900 dark:text-white">Confirm New Password</label>
+                                            <Input
+                                                type="password"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                className="h-12 rounded-xl"
+                                            />
+                                        </div>
+
+                                        <Button type="submit" disabled={isLoading} className="h-12 px-8 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold">
+                                            {isLoading ? "Updating..." : "Update Password"}
+                                        </Button>
+                                    </form>
+
+                                    <div className="pt-8 mt-8 border-t border-gray-100 dark:border-gray-800">
+                                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Linked Accounts</h2>
+                                        <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <h3 className="font-bold text-lg text-gray-900 dark:text-white">Crypto Wallet</h3>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                        {address ? `Connected: ${address.slice(0, 6)}...${address.slice(-4)}` : "Link your wallet for easier payments and login."}
+                                                    </p>
+                                                </div>
+                                                <div className="h-12 w-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                                    <Wallet className="h-6 w-6" />
+                                                </div>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                onClick={handleLinkWallet}
+                                                disabled={isLinkingWallet}
+                                                variant="outline"
+                                                className="w-full h-12 font-bold border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                                            >
+                                                {isLinkingWallet ? "Processing..." : isConnected ? "Verify & Link Wallet" : "Connect Wallet"}
+                                            </Button>
+                                        </div>
                                     </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-900 dark:text-white">New Password</label>
-                                        <Input
-                                            type="password"
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            className="h-12 rounded-xl"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-900 dark:text-white">Confirm New Password</label>
-                                        <Input
-                                            type="password"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            className="h-12 rounded-xl"
-                                        />
-                                    </div>
-
-                                    <Button type="submit" disabled={isLoading} className="h-12 px-8 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold">
-                                        {isLoading ? "Updating..." : "Update Password"}
-                                    </Button>
-                                </form>
+                                </>
                             )}
 
                             {activeTab === "role" && (

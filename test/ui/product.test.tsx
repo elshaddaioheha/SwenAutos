@@ -14,12 +14,15 @@ vi.mock('next/navigation', async () => ({ useRouter: () => ({ push: pushMock }) 
 let authState = { isAuthenticated: false };
 const loginMock = vi.fn((user: any) => { authState.isAuthenticated = true; });
 vi.mock('@/components/providers/AuthProvider', () => ({ useAuth: () => ({ ...authState, login: loginMock }), }));
-vi.mock('@campnetwork/origin/react', () => ({ useAuthState: () => ({ authenticated: false, loading: false }), useConnect: () => ({ connect: async () => {} }) }));
+vi.mock('@campnetwork/origin/react', () => ({ useAuthState: () => ({ authenticated: false, loading: false }), useConnect: () => ({ connect: async () => { } }) }));
 
 // Mock wagmi hooks used by LoginButton (avoid needing a WagmiProvider in tests)
 vi.mock('wagmi', () => ({
   useAccount: () => ({ address: undefined }),
+  useConnect: () => ({ connect: vi.fn(), connectors: [] }),
 }));
+
+vi.mock('@/components/ToastProvider', () => ({ useToast: () => ({ push: vi.fn() }) }));
 
 // Mock cart provider
 const addItemMock = vi.fn();
@@ -36,7 +39,7 @@ describe('LoginModal component', () => {
 
   it('renders and calls onSuccess after local sign-in', async () => {
     const onSuccess = vi.fn();
-    render(<LoginModal isOpen={true} onClose={() => {}} onSuccess={onSuccess} />);
+    render(<LoginModal isOpen={true} onClose={() => { }} onSuccess={onSuccess} />);
 
     // The LoginModal uses plain labels without htmlFor/id so getByLabelText won't find them.
     // Select by input type instead.
