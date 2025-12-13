@@ -54,8 +54,32 @@ export function useProductListing() {
         }
     };
 
+    const deactivateListing = async (productId: number) => {
+        setIsPending(true);
+        setError(null);
+        try {
+            if (!client) throw new Error("Wallet not connected");
+
+            const txHash = await client.writeContract({
+                address: ADDRESS,
+                abi: ABI,
+                functionName: 'deactivateListing',
+                args: [BigInt(productId)],
+            });
+            setHash(txHash);
+            return txHash;
+        } catch (err: any) {
+            console.error("Transaction failed:", err);
+            setError(err);
+            throw err;
+        } finally {
+            setIsPending(false);
+        }
+    };
+
     return {
         createListing,
+        deactivateListing,
         isPending,
         isConfirming,
         isConfirmed,

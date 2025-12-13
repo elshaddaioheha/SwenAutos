@@ -10,6 +10,7 @@ create table public.profiles (
   phone text,
   role text check (role in ('buyer', 'seller')),
   business_name text,
+  wallet_address text unique,
   avatar_url text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
@@ -136,15 +137,3 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
-
--- 5. STORAGE BUCKETS (Optional but recommended for images)
--- You'll need to create a bucket named 'product-images' in the Supabase Storage dashboard.
--- Policy to allow public access to view images
--- create policy "Public Access"
--- on storage.objects for select
--- using ( bucket_id = 'product-images' );
-
--- Policy to allow authenticated users to upload images
--- create policy "Authenticated users can upload"
--- on storage.objects for insert
--- with check ( bucket_id = 'product-images' and auth.role() = 'authenticated' );

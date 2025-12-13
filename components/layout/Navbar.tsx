@@ -33,21 +33,25 @@ export function Navbar() {
 
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center space-x-8">
-                    <Link href="/" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        Home
-                    </Link>
-                    <Link href="/shop" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        Shop
-                    </Link>
-                    <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        About Us
-                    </Link>
-                    <Link href="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        How It Works
-                    </Link>
-                    <Link href="/vendor" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
-                        Become a Vendor
-                    </Link>
+                    {!authenticated && (
+                        <>
+                            <Link href="/" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                Home
+                            </Link>
+                            <Link href="/shop" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                Shop
+                            </Link>
+                            <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                About Us
+                            </Link>
+                            <Link href="/how-it-works" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                How It Works
+                            </Link>
+                            <Link href="/vendor" className="text-sm font-medium text-gray-600 hover:text-primary transition-colors">
+                                Become a Vendor
+                            </Link>
+                        </>
+                    )}
                 </nav>
 
                 {/* Right Actions */}
@@ -152,27 +156,31 @@ export function Navbar() {
                                     </span>
                                 )}
                             </Link>
-                            <Link
-                                href="/about"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                About Us
-                            </Link>
-                            <Link
-                                href="/how-it-works"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                How It Works
-                            </Link>
-                            <Link
-                                href="/vendor"
-                                className="text-base font-medium text-gray-600 hover:text-primary py-2"
-                                onClick={() => setIsMenuOpen(false)}
-                            >
-                                Become a Vendor
-                            </Link>
+                            {!authenticated && (
+                                <>
+                                    <Link
+                                        href="/about"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        About Us
+                                    </Link>
+                                    <Link
+                                        href="/how-it-works"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        How It Works
+                                    </Link>
+                                    <Link
+                                        href="/vendor"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Become a Vendor
+                                    </Link>
+                                </>
+                            )}
 
                             {authenticated ? (
                                 <>
@@ -182,6 +190,13 @@ export function Navbar() {
                                         onClick={() => setIsMenuOpen(false)}
                                     >
                                         Dashboard
+                                    </Link>
+                                    <Link
+                                        href="/orders"
+                                        className="text-base font-medium text-gray-600 hover:text-primary py-2"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        My Orders
                                     </Link>
                                     <div className="pt-4 border-t border-gray-100">
                                         <Button

@@ -39,12 +39,34 @@ function LoginForm() {
                 return;
             }
 
-            // Redirect
-            if (searchParams.get("redirect")) {
-                router.push(searchParams.get("redirect")!);
+            // Fetch actual user profile to determine role
+            const { data: { user } } = await supabase.auth.getUser();
+
+            let userRole = role; // Fallback to selected role
+
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile && profile.role) {
+                    userRole = profile.role as "buyer" | "seller";
+                }
+            }
+
+            // Sync with AuthProvider
+            // login(user); // distinct from local login, effectively handled by listener in AuthProvider usually, but we can't easily access the user obj from here without fetching.
+            // Actually AuthProvider likely listens to onAuthStateChange, so we might not need to call login() manually for email/pass.
+            // But we do need to handle redirect.
+
+            // Redirect Logic
+            if (userRole === "seller") {
+                router.push("/dashboard");
             } else {
-                if (role === "seller") {
-                    router.push("/dashboard");
+                if (searchParams.get("redirect") && searchParams.get("redirect") !== "/dashboard") {
+                    router.push(searchParams.get("redirect")!);
                 } else {
                     router.push("/shop");
                 }

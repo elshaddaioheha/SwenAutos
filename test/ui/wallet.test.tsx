@@ -1,15 +1,38 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, vi, expect, beforeEach, Mock } from 'vitest';
+import { LoginButton } from '@/components/auth/LoginButton';
 
 // Mock next/navigation
 const pushMock = vi.fn();
 vi.mock('next/navigation', async () => ({ useRouter: () => ({ push: pushMock }) }));
 
-// Mock AuthProvider so we can observe login()
+// Mock AuthProvider
 let loginMock = vi.fn();
 vi.mock('@/components/providers/AuthProvider', () => ({ useAuth: () => ({ isAuthenticated: false, login: loginMock }) }));
 vi.mock('@/components/ToastProvider', () => ({ useToast: () => ({ push: vi.fn() }) }));
+
+// Mock Supabase
+vi.mock('@/lib/supabase', () => {
+  const fromMock = vi.fn(() => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        single: vi.fn(() => Promise.resolve({ data: { role: 'buyer', full_name: 'Test User' }, error: null }))
+      }))
+    })),
+    update: vi.fn(() => ({
+      eq: vi.fn(() => Promise.resolve({ error: null }))
+    }))
+  }));
+  return {
+    supabase: {
+      from: fromMock,
+      auth: {
+        getUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'test-user-id' } }, error: null }))
+      }
+    }
+  };
+});
 
 // Mock wagmi and origin hooks
 const useConnectMock = vi.fn();
@@ -53,14 +76,6 @@ describe('LoginButton (wallet) integration', () => {
     (global as any).window = (global as any).window || {};
     (global as any).window.ethereum = {};
 
-    // Import component (it will use the top-level mocks which now redirect to our mock variables)
-    // We don't need dynamic import anymore for mocks, but let's keep it simple
-    // Actually, dynamic import is fine but with the new mocking strategy standard import is also fine if we didn't have to worry about hoisting
-    // But since we define mocks at top level, standard import is safer.
-    // However, I will stick to dynamic to minimize changes to structure if not needed. 
-    // Wait, dynamic import is NOT needed if we use mutable mocks at top level.
-    const { LoginButton } = await import('@/components/auth/LoginButton');
-
     const { getByRole } = render(<LoginButton redirectUrl="/dashboard" />);
 
     const btn = getByRole('button');
@@ -76,7 +91,6 @@ describe('LoginButton (wallet) integration', () => {
     useAccountMock.mockReturnValue({ address: mockAddress, isConnected: true });
     useConnectMock.mockReturnValue({ connect: vi.fn(), connectors: [{ id: 'mock' }] });
 
-    const { LoginButton } = await import('@/components/auth/LoginButton');
     render(<LoginButton redirectUrl="/my/bench" />);
 
     await waitFor(() => expect(loginMock).toHaveBeenCalled());

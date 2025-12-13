@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useToast } from "@/components/ToastProvider";
+import { supabase } from "@/lib/supabase";
 
 interface LoginButtonProps {
     redirectUrl?: string;
@@ -25,29 +26,61 @@ export function LoginButton({ redirectUrl = "/dashboard", onSuccess }: LoginButt
     const [isConnecting, setIsConnecting] = useState(false);
 
     useEffect(() => {
-        // Use isConnected from wagmi as the primary signal for wallet connection
-        if (isConnected && address) {
-            // Only redirect if we are not already redirected (simple check)
-            // In a real app, we might want to check if the user is already "logged in" in our local state matching this address
+        const checkUserRoleAndLogin = async () => {
+            if (isConnected && address) {
+                // Check Supabase for existing user with this wallet
+                let userRole = "buyer"; // Default
+                let userName = `User ${address.slice(0, 6)}`;
+                let userEmail = "";
 
-            // Sync with local AuthProvider
-            login({
-                id: address,
-                name: `User ${address.slice(0, 6)}`,
-                email: "", // Wallet users might not have email yet
-                role: "buyer" // Default to buyer for wallet login
-            });
+                try {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('wallet_address', address)
+                        .single();
 
-            push({ type: "success", message: "Wallet connected successfully!" });
+                    if (data) {
+                        userRole = data.role || "buyer";
+                        userName = data.full_name || userName;
+                        userEmail = data.email || "";
+                    } else {
+                        // Optional: Check blockchain here if needed, or stick to default "buyer"
+                    }
+                } catch (err) {
+                    console.error("Error checking user role:", err);
+                }
 
-            if (onSuccess) {
-                onSuccess();
-            } else {
-                // User is authenticated, redirect
-                router.push(redirectUrl);
+                // Sync with local AuthProvider
+                login({
+                    id: address,
+                    name: userName,
+                    email: userEmail,
+                    role: userRole as "buyer" | "seller"
+                });
+
+                push({ type: "success", message: `Wallet connected as ${userRole}!` });
+
+                if (onSuccess) {
+                    onSuccess();
+                } else {
+                    // Dynamic Redirect
+                    if (userRole === "seller") {
+                        router.push("/dashboard");
+                    } else {
+                        // Use provided redirectUrl if it's not the default dashboard, otherwise go to shop
+                        if (redirectUrl && redirectUrl !== "/dashboard") {
+                            router.push(redirectUrl);
+                        } else {
+                            router.push("/shop");
+                        }
+                    }
+                }
             }
-        }
-    }, [isConnected, address, router, redirectUrl, push, onSuccess]); // Removed login from dependency array to avoid potential loops if login changes identity
+        };
+
+        checkUserRoleAndLogin();
+    }, [isConnected, address, router, redirectUrl, push, onSuccess, login]);
 
     const handleLogin = async () => {
         setIsConnecting(true);

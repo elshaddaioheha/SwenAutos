@@ -113,22 +113,26 @@ export function UserProfile() {
                     </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem asChild>
-                    <Link href="/dashboard/listings" className="cursor-pointer">
-                        <Store className="mr-2 h-4 w-4" />
-                        <span>My Listings</span>
-                    </Link>
-                </DropdownMenuItem>
+                {localUser?.role === 'seller' && (
+                    <>
+                        <DropdownMenuItem asChild>
+                            <Link href="/dashboard/listings" className="cursor-pointer">
+                                <Store className="mr-2 h-4 w-4" />
+                                <span>My Listings</span>
+                            </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild>
+                            <Link href="/dashboard/create-listing" className="cursor-pointer">
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                <span>Create Listing</span>
+                            </Link>
+                        </DropdownMenuItem>
+                    </>
+                )}
 
                 <DropdownMenuItem asChild>
-                    <Link href="/dashboard/create-listing" className="cursor-pointer">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        <span>Create Listing</span>
-                    </Link>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem asChild>
-                    <Link href="/dashboard/orders" className="cursor-pointer">
+                    <Link href="/orders" className="cursor-pointer">
                         <Package className="mr-2 h-4 w-4" />
                         <span>My Orders</span>
                     </Link>

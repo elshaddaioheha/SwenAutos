@@ -8,8 +8,8 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <ProtectedRoute>
+        <>
             {children}
-        </ProtectedRoute>
+        </>
     );
 }
