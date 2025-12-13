@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Turbopack config (Next.js 16+ default bundler)
+  turbopack: {
+    // Empty config to acknowledge Turbopack usage
+    // Keep webpack config below for fallback compatibility
+  },
   webpack: (config, { isServer }) => {
     // Only apply fallbacks for client-side bundles
     if (!isServer) {
