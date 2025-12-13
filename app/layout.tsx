@@ -2,18 +2,12 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import dynamic from "next/dynamic";
+import { Web3Wrapper } from "@/components/providers/Web3Wrapper";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/ToastProvider";
-
-// Import Web3Provider dynamically to avoid SSR issues
-const Web3Provider = dynamic(
-  () => import("@/components/providers/Web3Provider").then((mod) => mod.Web3Provider),
-  { ssr: false }
-);
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -36,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${manrope.className} antialiased bg-background text-foreground`}
       >
-        <Web3Provider>
+        <Web3Wrapper>
           <ToastProvider>
             <AuthProvider>
               <CartProvider>
@@ -50,7 +44,7 @@ export default function RootLayout({
               </CartProvider>
             </AuthProvider>
           </ToastProvider>
-        </Web3Provider>
+        </Web3Wrapper>
         <Analytics />
       </body>
     </html>
