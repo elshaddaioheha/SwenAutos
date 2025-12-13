@@ -2,12 +2,18 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { Web3Provider } from "@/components/providers/Web3Provider";
+import dynamic from "next/dynamic";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CartProvider } from "@/components/providers/CartProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ToastProvider } from "@/components/ToastProvider";
+
+// Import Web3Provider dynamically to avoid SSR issues
+const Web3Provider = dynamic(
+  () => import("@/components/providers/Web3Provider").then((mod) => mod.Web3Provider),
+  { ssr: false }
+);
 
 const manrope = Manrope({
   subsets: ["latin"],
