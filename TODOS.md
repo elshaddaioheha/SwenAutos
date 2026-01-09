@@ -16,6 +16,7 @@
 - [x] **Create Listing**: Connected `useProductListing` to form.
 - [x] **My Listings**: Fetching seller products from chain.
 - [x] **Sales Dashboard**: Fetching seller orders and enabling "Mark as Shipped" functionality.
+- [x] **Seller Registry**: Added on-chain `isSeller` mapping and registration flow.
 
 ## Phase 4: Payments & Pricing - IN PROGRESS 🔄
 - [x] **Fiat Integration**: Integrated Paystack for Naira payments leading to order confirmation.
@@ -27,20 +28,21 @@
 - [x] **Cleanup**: Replaced mock setTimeout logic with real Supabase calls.
 - [x] **Secrets**: Cleaned up sensitive files and configured gitignore.
 - [x] **SEO**: Added dynamic metadata and image optimization.
+- [x] **Package Manager**: Switched to `pnpm`.
 
 ## Remaining TODOs
 
 ### 1. Smart Contract Enhancements
-- [ ] **On-Chain Seller Registry (Critical for Security)**:
-  - Currently, valid buyers can technically invoke `createListing` directly on the blockchain if they bypass the frontend.
-  - *Recommendation*: Add a `mapping(address => bool) isSeller` to `ProductListingContract`. Add `modifier onlySeller`.
-  - Implement an admin dashboard or simplified flow to "approve" sellers or let them register on-chain.
+- [x] **On-Chain Seller Registry (Critical for Security)**:
+  - Added `mapping(address => bool) isSeller` to `ProductListingContract`.
+  - Added `modifier onlySeller` to `createListing`.
+  - Added `registerAsSeller` function.
 
 
 
 ### 3. User Experience
-- [ ] **Dashboard Stats**:
-  - The seller dashboard shows placeholder stats. Connect these to real graph queries (The Graph) or index events using Supabase to show real "Total Sales", "Active Orders", etc.
+- [x] **Dashboard Stats**:
+  - Connected seller dashboard to real Supabase data for total listings, orders, and earnings.
 - [ ] **Email Notifications**:
   - Set up Supabase Edge Functions to send transactional emails (e.g., "Order Received", "Item Shipped") using Resend or SendGrid.
 

@@ -19,6 +19,8 @@ contract ProductListingContract is Ownable, ReentrancyGuard {
     mapping(address => uint256[]) public sellerProducts;
     mapping(uint256 => bool) public productExists;
     
+    mapping(address => bool) public isSeller;
+    
     uint256[] public activeProductIds;
     mapping(uint256 => uint256) private activeProductIndex;
 
@@ -76,7 +78,11 @@ contract ProductListingContract is Ownable, ReentrancyGuard {
         uint256 timestamp
     );
 
-    // Modifiers
+    modifier onlySeller() {
+        require(isSeller[msg.sender], "Only registered sellers can call this function");
+        _;
+    }
+
     modifier onlySellerOfProduct(uint256 productId) {
         require(productExists[productId], "Product does not exist");
         require(products[productId].seller == msg.sender, "Only seller can modify this listing");
@@ -114,7 +120,7 @@ contract ProductListingContract is Ownable, ReentrancyGuard {
         address priceToken,
         uint256 initialInventory,
         string memory ipfsHash
-    ) external nonReentrant returns (uint256) {
+    ) external onlySeller nonReentrant returns (uint256) {
         require(bytes(name).length > 0, "Product name required");
         require(price > 0, "Price must be greater than 0");
     // initialInventory may be zero (out-of-stock listing)
@@ -157,6 +163,29 @@ contract ProductListingContract is Ownable, ReentrancyGuard {
         );
 
         return productId;
+    }
+
+    /**
+     * @notice Register current address as a seller
+     */
+    function registerAsSeller() external {
+        isSeller[msg.sender] = true;
+    }
+
+    /**
+     * @notice Admin approves a seller
+     * @param seller Address to approve
+     */
+    function approveSeller(address seller) external onlyOwner {
+        isSeller[seller] = true;
+    }
+
+    /**
+     * @notice Admin revokes a seller
+     * @param seller Address to revoke
+     */
+    function revokeSeller(address seller) external onlyOwner {
+        isSeller[seller] = false;
     }
 
     /**

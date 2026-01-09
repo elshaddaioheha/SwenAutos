@@ -14,7 +14,11 @@ export function useProductListing() {
     const [hash, setHash] = useState<`0x${string}` | undefined>(undefined);
     const [error, setError] = useState<Error | null>(null);
 
-    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    const {
+        data: receipt,
+        isLoading: isConfirming,
+        isSuccess: isConfirmed
+    } = useWaitForTransactionReceipt({
         hash,
     });
 
@@ -46,9 +50,11 @@ export function useProductListing() {
                 ],
             });
             setHash(txHash);
+            return txHash;
         } catch (err: any) {
             console.error("Transaction failed:", err);
             setError(err);
+            throw err;
         } finally {
             setIsPending(false);
         }
@@ -77,14 +83,58 @@ export function useProductListing() {
         }
     };
 
+    const registerAsSeller = async () => {
+        setIsPending(true);
+        setError(null);
+        try {
+            if (!client) throw new Error("Wallet not connected");
+
+            const txHash = await client.writeContract({
+                address: ADDRESS,
+                abi: ABI,
+                functionName: 'registerAsSeller',
+                args: [],
+            });
+            setHash(txHash);
+            return txHash;
+        } catch (err: any) {
+            console.error("Transaction failed:", err);
+            setError(err);
+            throw err;
+        } finally {
+            setIsPending(false);
+        }
+    };
+
     return {
         createListing,
         deactivateListing,
+        registerAsSeller,
         isPending,
         isConfirming,
         isConfirmed,
         hash,
+        receipt,
         error
+    };
+}
+
+export function useIsSeller(address: string) {
+    const { data, isError, isLoading, refetch } = useReadContract({
+        address: ADDRESS,
+        abi: ABI,
+        functionName: 'isSeller',
+        args: [address as `0x${string}`],
+        query: {
+            enabled: !!address,
+        }
+    });
+
+    return {
+        isSeller: !!data,
+        isError,
+        isLoading,
+        refetch
     };
 }
 

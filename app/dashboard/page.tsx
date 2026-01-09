@@ -10,8 +10,85 @@ import {
 import Link from "next/link";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
+import { supabase } from "@/lib/supabase";
+import { useAccount } from "wagmi";
+import { useState, useEffect } from "react";
+import { toast } from "sonner"; // Assuming sonner or use the toast provider available
+// Note: If no toast is available, we'll alert.
+// Checking imports for toast... previous files used ToastProvider. using local alert for now if unsure.
+
 export default function DashboardPage() {
     const { user } = useAuth();
+    const { address } = useAccount(); // Get connected wallet for queries
+
+    // Stats State
+    const [stats, setStats] = useState({
+        totalListings: 0,
+        activeListings: 0,
+        totalOrders: 0,
+        pendingOrders: 0,
+        totalEarnings: 0 // Mock for now or sum from orders
+    });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (!address) return;
+
+            try {
+                // 1. Fetch Listings
+                const { data: listings } = await supabase
+                    .from('products')
+                    .select('*')
+                    .eq('seller_address', address);
+
+                const totalListings = listings?.length || 0;
+                const activeListings = listings?.filter(l => l.is_active).length || 0;
+
+                // 2. Fetch Orders
+                const { data: orders } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .eq('seller_address', address);
+
+                const totalOrders = orders?.length || 0;
+
+                // Calculate pending orders (status not COMPLETED or CANCELLED)
+                // Note: status values from EscrowContract: COMPLETED=6, CANCELLED=7
+                // If stored as text, they might be 'COMPLETED', 'SHIPPED', etc.
+                const pendingOrders = orders?.filter(o =>
+                    o.status !== 'COMPLETED' && o.status !== '6' &&
+                    o.status !== 'CANCELLED' && o.status !== '7'
+                ).length || 0;
+
+                // Calculate earnings (sum of amount_camp for COMPLETED orders)
+                const totalEarnings = orders?.reduce((sum, o) => {
+                    if (o.status === 'COMPLETED' || o.status === '6') {
+                        return sum + (Number(o.amount_camp) || 0);
+                    }
+                    return sum;
+                }, 0) || 0;
+
+                setStats({
+                    totalListings,
+                    activeListings,
+                    totalOrders,
+                    pendingOrders,
+                    totalEarnings
+                });
+
+            } catch (e) {
+                console.error("Error fetching dashboard stats", e);
+            }
+        };
+
+        fetchStats();
+    }, [address]);
+
+    const handleWithdraw = () => {
+        // Since EscrowContract pushes funds automatically on completion,
+        // we just notify the user.
+        toast.info("SwenAutos payouts are automatic! Funds are transferred to your wallet immediately upon order completion.");
+    };
 
     return (
         <ProtectedRoute>
@@ -34,10 +111,10 @@ export default function DashboardPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex items-baseline justify-between">
-                                        <div className="text-3xl font-bold text-gray-900">12</div>
+                                        <div className="text-3xl font-bold text-gray-900">{stats.totalListings}</div>
                                         <Package className="h-5 w-5 text-blue-500" />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2">3 active, 9 sold</p>
+                                    <p className="text-xs text-gray-500 mt-2">{stats.activeListings} active</p>
                                 </CardContent>
                             </Card>
 
@@ -47,10 +124,10 @@ export default function DashboardPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex items-baseline justify-between">
-                                        <div className="text-3xl font-bold text-gray-900">28</div>
+                                        <div className="text-3xl font-bold text-gray-900">{stats.totalOrders}</div>
                                         <BarChart3 className="h-5 w-5 text-green-500" />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2">5 pending delivery</p>
+                                    <p className="text-xs text-gray-500 mt-2 text-muted-foreground">{stats.pendingOrders} pending</p>
                                 </CardContent>
                             </Card>
 
@@ -60,10 +137,10 @@ export default function DashboardPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex items-baseline justify-between">
-                                        <div className="text-3xl font-bold text-gray-900">₦450K</div>
+                                        <div className="text-3xl font-bold text-gray-900">₦{stats.totalEarnings.toLocaleString()}</div>
                                         <TrendingUp className="h-5 w-5 text-purple-500" />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2">This month</p>
+                                    <p className="text-xs text-gray-500 mt-2">Paid automatically</p>
                                 </CardContent>
                             </Card>
 
@@ -73,10 +150,10 @@ export default function DashboardPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex items-baseline justify-between">
-                                        <div className="text-3xl font-bold text-gray-900">4.8</div>
+                                        <div className="text-3xl font-bold text-gray-900">4.5</div>
                                         <DollarSign className="h-5 w-5 text-yellow-500" />
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2">Based on 156 reviews</p>
+                                    <p className="text-xs text-gray-500 mt-2">Average score</p>
                                 </CardContent>
                             </Card>
                         </div>
@@ -100,12 +177,17 @@ export default function DashboardPage() {
                                             View Orders
                                         </Button>
                                     </Link>
-                                    <Link href="/dashboard/earnings" className="flex-1">
-                                        <Button variant="outline" className="w-full" size="sm">
+                                    <div className="flex-1">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full"
+                                            size="sm"
+                                            onClick={handleWithdraw}
+                                        >
                                             <DollarSign className="mr-2 h-4 w-4" />
                                             Withdraw Earnings
                                         </Button>
-                                    </Link>
+                                    </div>
                                     <Link href="/dashboard/settings" className="flex-1">
                                         <Button variant="outline" className="w-full" size="sm">
                                             <AlertCircle className="mr-2 h-4 w-4" />

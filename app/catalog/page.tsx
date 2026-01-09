@@ -1,42 +1,63 @@
 "use client";
-
+import React from 'react';
 import { FilterSidebar } from "@/components/catalog/FilterSidebar";
 import { ProductCard } from "@/components/ui/product-card";
 import { Button } from "@/components/ui/button";
 import { SlidersHorizontal, Loader2 } from "lucide-react";
 import { Select } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
-import { useAllProducts } from "@/hooks/useProductListing";
-import { formatEther } from "viem";
 
 export default function CatalogPage() {
-    const { products: rawProducts, isLoading, isError } = useAllProducts(0, 50); // Fetch first 50
+    const [products, setProducts] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isError, setIsError] = useState(false);
     const [sortBy, setSortBy] = useState("recent");
 
-    // Helper to format blockchain product to UI product
-    const formatProduct = (p: any) => {
-        // Handle potential empty/invalid data safely
-        if (!p) return null;
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setIsLoading(true);
+            try {
+                let query = supabase
+                    .from('products')
+                    .select('*')
+                    .eq('is_active', true);
 
-        const campPrice = p.price ? parseFloat(formatEther(p.price)) : 0;
-        return {
-            id: p.productId?.toString() || "0",
-            name: p.name || "Unknown Product",
-            price: campPrice * 1600, // Approximate NGN price (1 CAMP = 1600 NGN fixed for now)
-            priceCamp: campPrice,
-            rating: 4.5, // Mock rating until implemented
-            reviews: 10, // Mock reviews
-            category: p.category || "General",
-            image: p.ipfsHash ?
-                (p.ipfsHash.startsWith("http") ? p.ipfsHash :
-                    p.ipfsHash.startsWith("ipfs://") ? p.ipfsHash.replace("ipfs://", "https://ipfs.io/ipfs/") :
-                        `https://ipfs.io/ipfs/${p.ipfsHash}`) :
-                "/placeholder-part.png",
+                // Apply sorting
+                if (sortBy === 'recent') {
+                    query = query.order('created_at', { ascending: false });
+                } else if (sortBy === 'price-low') {
+                    query = query.order('price_camp', { ascending: true });
+                } else if (sortBy === 'price-high') {
+                    query = query.order('price_camp', { ascending: false });
+                }
+
+                const { data, error } = await query;
+
+                if (error) throw error;
+
+                const formattedProducts = data.map((p: any) => ({
+                    id: p.id.toString(),
+                    name: p.name,
+                    price: (p.price_camp || 0) * 1600, // NGN approximation
+                    priceCamp: p.price_camp,
+                    rating: 4.5, // Placeholder until rating joined
+                    reviews: 10,
+                    category: p.category || "General",
+                    image: p.image_url || "/placeholder-part.png"
+                }));
+
+                setProducts(formattedProducts);
+            } catch (err) {
+                console.error("Error fetching products:", err);
+                setIsError(true);
+            } finally {
+                setIsLoading(false);
+            }
         };
-    };
-
-    const products = rawProducts ? rawProducts.map(formatProduct).filter(Boolean) : [];
+        fetchProducts();
+    }, [sortBy]);
 
     return (
         <div className="container px-4 md:px-6 py-8">
@@ -74,7 +95,6 @@ export default function CatalogPage() {
                             <option value="recent">Most Recent</option>
                             <option value="price-low">Price: Low to High</option>
                             <option value="price-high">Price: High to Low</option>
-                            <option value="rating">Highest Rated</option>
                         </Select>
                     </div>
 

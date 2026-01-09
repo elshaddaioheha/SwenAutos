@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useProductListing } from "@/hooks/useProductListing";
+import { useRef, useEffect, useState } from "react";
+import { useProductListing, useIsSeller } from "@/hooks/useProductListing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,10 @@ import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuthState } from "@campnetwork/origin/react";
 import { LoginButton } from "@/components/auth/LoginButton";
+import { supabase } from "@/lib/supabase";
+import { decodeEventLog } from "viem";
+import ProductListingArtifact from "@/lib/abis/ProductListing.json";
+import { useAccount } from "wagmi";
 
 function WalletRequiredCard() {
     return (
@@ -42,12 +46,67 @@ function WalletRequiredCard() {
 }
 
 function CreateListingContent() {
-    const { createListing, isPending, isConfirming, isConfirmed, hash, error } = useProductListing();
+    const { createListing, registerAsSeller, isPending, isConfirming, isConfirmed, hash, receipt, error } = useProductListing();
     const router = useRouter();
     const { authenticated } = useAuthState();
+    const { address } = useAccount();
+    const { isSeller, isLoading: isCheckingSeller, refetch: refetchSeller } = useIsSeller(address || "");
 
     if (!authenticated) {
         return <WalletRequiredCard />;
+    }
+
+    if (isCheckingSeller) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" />
+                <p className="text-gray-500">Checking seller status...</p>
+            </div>
+        );
+    }
+
+    if (!isSeller) {
+        return (
+            <div className="container max-w-lg mx-auto py-20 px-4">
+                <Card className="text-center border-yellow-200 bg-yellow-50">
+                    <CardHeader>
+                        <div className="mx-auto bg-yellow-100 p-3 rounded-full w-fit mb-4">
+                            <Wallet className="h-8 w-8 text-yellow-600" />
+                        </div>
+                        <CardTitle className="text-yellow-800">On-Chain Registration Required</CardTitle>
+                        <CardDescription className="text-yellow-700">
+                            You are a seller in our system, but you need to register your wallet on-chain to create listings.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <p className="text-sm text-gray-600">
+                            This is a one-time transaction to verify your wallet on the CAMP network.
+                        </p>
+                        <Button
+                            onClick={async () => {
+                                try {
+                                    await registerAsSeller();
+                                    // The useEffect will handle reload or we can refetch
+                                } catch (e) {
+                                    console.error(e);
+                                }
+                            }}
+                            disabled={isPending || isConfirming}
+                            className="w-full"
+                        >
+                            {isPending || isConfirming ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Registering...
+                                </>
+                            ) : (
+                                "Register as Seller On-Chain"
+                            )}
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
     }
 
     const [formData, setFormData] = useState({
@@ -80,6 +139,78 @@ function CreateListingContent() {
         }
     };
 
+    const [isIndexing, setIsIndexing] = useState(false);
+    const hasIndexed = useRef(false);
+
+    useEffect(() => {
+        if (isConfirmed && hash && !isSeller) {
+            refetchSeller();
+        }
+
+        const indexProduct = async () => {
+            if (isConfirmed && receipt && hash && !hasIndexed.current && address) {
+                hasIndexed.current = true;
+                setIsIndexing(true);
+                try {
+                    // Find the ListingCreated log
+                    let productId = null;
+
+                    for (const log of receipt.logs) {
+                        try {
+                            const event = decodeEventLog({
+                                abi: ProductListingArtifact.abi,
+                                data: log.data,
+                                topics: log.topics,
+                            });
+
+                            if (event.eventName === 'ListingCreated') {
+                                // @ts-ignore
+                                productId = event.args.productId.toString();
+                                break;
+                            }
+                        } catch (e) {
+                            // Not our event, skip
+                        }
+                    }
+
+                    if (productId) {
+                        console.log("Found Product ID:", productId);
+
+                        const { error: dbError } = await supabase
+                            .from('products')
+                            .insert({
+                                id: BigInt(productId),
+                                seller_address: address,
+                                name: formData.name,
+                                description: formData.description,
+                                category: formData.category,
+                                price_wei: parseFloat(formData.price) * 1e18, // Approximate logging, ideally store exact string
+                                price_camp: parseFloat(formData.price),
+                                inventory: parseInt(formData.inventory),
+                                image_url: formData.ipfsHash ? `https://ipfs.io/ipfs/${formData.ipfsHash}` : null,
+                                is_active: true
+                            });
+
+                        if (dbError) {
+                            console.error("Supabase insert error:", dbError);
+                        } else {
+                            console.log("Product indexed to Supabase!");
+                        }
+                    } else {
+                        console.error("Could not find ListingCreated event in receipt");
+                    }
+
+                } catch (err) {
+                    console.error("Indexing failed:", err);
+                } finally {
+                    setIsIndexing(false);
+                }
+            }
+        }
+
+        indexProduct();
+    }, [isConfirmed, hash, receipt, address, formData]);
+
     if (isConfirmed) {
         return (
             <div className="container max-w-lg mx-auto py-20 px-4">
@@ -90,11 +221,14 @@ function CreateListingContent() {
                         </div>
                         <CardTitle className="text-green-800">Listing Created Successfully!</CardTitle>
                         <CardDescription className="text-green-700">
-                            Your product has been added to the blockchain.
+                            Your product has been added to the blockchain {isIndexing ? "and is being indexed..." : "and indexed!"}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <p className="text-sm text-gray-600 break-all">Transaction Hash: {hash}</p>
+                        <p className="text-sm text-gray-500">
+                            {isIndexing ? "Syncing with database..." : "Database sync complete."}
+                        </p>
                         <div className="flex gap-4 justify-center">
                             <Button onClick={() => router.push('/shop')} variant="default">
                                 View Shop

@@ -7,9 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPublicClient, http } from "viem";
 
 import { useToast } from "@/components/ToastProvider";
 import { supabase } from "@/lib/supabase";
+import { baseCampTestnet, CONTRACT_ADDRESSES } from "@/lib/campNetwork";
+import ProductListingArtifact from "@/lib/abis/ProductListing.json";
 
 interface LoginButtonProps {
     redirectUrl?: string;
@@ -37,16 +40,42 @@ export function LoginButton({ redirectUrl = "/dashboard", onSuccess }: LoginButt
                     const { data, error } = await supabase
                         .from('profiles')
                         .select('*')
-                        .eq('wallet_address', address)
+                        .ilike('wallet_address', address) // Case-insensitive check
                         .single();
 
                     if (data) {
                         userRole = data.role || "buyer";
                         userName = data.full_name || userName;
                         userEmail = data.email || "";
-                    } else {
-                        // Optional: Check blockchain here if needed, or stick to default "buyer"
                     }
+
+                    // If role is currently 'buyer', verify against the blockchain
+                    // A user might be a seller on-chain but not yet updated in Supabase
+                    if (userRole === "buyer") {
+                        try {
+                            const publicClient = createPublicClient({
+                                chain: baseCampTestnet,
+                                transport: http()
+                            });
+
+                            const sellerProducts = await publicClient.readContract({
+                                address: CONTRACT_ADDRESSES.PRODUCT_LISTING as `0x${string}`,
+                                abi: ProductListingArtifact.abi,
+                                functionName: 'getSellerProducts',
+                                args: [address]
+                            }) as bigint[];
+
+                            if (sellerProducts && sellerProducts.length > 0) {
+                                console.log("User identified as seller via blockchain.");
+                                userRole = "seller";
+
+                                // Optional: You could update Supabase here to persist this role
+                            }
+                        } catch (chainError) {
+                            console.error("Error verifying seller status on-chain:", chainError);
+                        }
+                    }
+
                 } catch (err) {
                     console.error("Error checking user role:", err);
                 }
