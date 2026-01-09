@@ -15,6 +15,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
+import { useState, useEffect } from "react";
+import { createPublicClient, http } from "viem";
+import { supabase } from "@/lib/supabase";
+import { baseCampTestnet, CONTRACT_ADDRESSES } from "@/lib/campNetwork";
+import ProductListingArtifact from "@/lib/abis/ProductListing.json";
 
 export function UserProfile() {
     // Web3 Auth
@@ -49,6 +55,59 @@ export function UserProfile() {
             subtitle: localUser.email
         };
     }
+
+    const { address } = useAccount();
+    const [userRole, setUserRole] = useState<"buyer" | "seller">("buyer");
+
+    useEffect(() => {
+        const checkRole = async () => {
+            if (localUser?.role) {
+                setUserRole(localUser.role);
+                return;
+            }
+
+            if (address) {
+                // 1. Check Supabase
+                try {
+                    const { data } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .ilike('wallet_address', address)
+                        .single();
+
+                    if (data?.role === 'seller') {
+                        setUserRole('seller');
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Supabase role check failed", e);
+                }
+
+                // 2. Check On-Chain
+                try {
+                    const publicClient = createPublicClient({
+                        chain: baseCampTestnet,
+                        transport: http()
+                    });
+
+                    const sellerProducts = await publicClient.readContract({
+                        address: CONTRACT_ADDRESSES.PRODUCT_LISTING as `0x${string}`,
+                        abi: ProductListingArtifact.abi,
+                        functionName: 'getSellerProducts',
+                        args: [address]
+                    }) as bigint[];
+
+                    if (sellerProducts && sellerProducts.length > 0) {
+                        setUserRole('seller');
+                    }
+                } catch (e) {
+                    console.error("On-chain role check failed", e);
+                }
+            }
+        };
+
+        checkRole();
+    }, [localUser, address]);
 
     if (isLoading) {
         return <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />;
@@ -106,15 +165,15 @@ export function UserProfile() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                    </Link>
-                </DropdownMenuItem>
-
-                {localUser?.role === 'seller' && (
+                {userRole === 'seller' && (
                     <>
+                        <DropdownMenuItem asChild>
+                            <Link href="/dashboard" className="cursor-pointer">
+                                <LayoutDashboard className="mr-2 h-4 w-4" />
+                                <span>Dashboard</span>
+                            </Link>
+                        </DropdownMenuItem>
+
                         <DropdownMenuItem asChild>
                             <Link href="/dashboard/listings" className="cursor-pointer">
                                 <Store className="mr-2 h-4 w-4" />

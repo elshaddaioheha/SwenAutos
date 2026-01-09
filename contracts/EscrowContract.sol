@@ -240,6 +240,7 @@ contract EscrowContract is Ownable, ReentrancyGuard {
             ,
             bool listedIsActive,
             ,
+            
         ) = productListingContract.products(productId);
         
         // Validation Logic
@@ -255,16 +256,16 @@ contract EscrowContract is Ownable, ReentrancyGuard {
         require(amount > 0, "Amount must be greater than 0");
         require(paymentToken != address(0), "Invalid payment token address");
 
-    uint256 orderId = _orderIdCounter;
-    _orderIdCounter++;
+        uint256 orderId = _orderIdCounter;
+        _orderIdCounter++;
 
         Order memory newOrder = Order({
             orderId: orderId,
             buyer: msg.sender,
-            seller: seller,
+            seller: listedSeller,
             productId: productId,
-            amount: amount,
-            paymentToken: paymentToken,
+            amount: listedPrice,
+            paymentToken: listedToken,
             paymentMethod: paymentMethod,
             externalPaymentId: externalPaymentId,
             status: OrderStatus.PENDING_FUND,
@@ -285,7 +286,7 @@ contract EscrowContract is Ownable, ReentrancyGuard {
             msg.sender,
             seller,
             productId,
-            amount,
+            listedPrice,
             paymentMethod,
             block.timestamp
         );
@@ -300,6 +301,7 @@ contract EscrowContract is Ownable, ReentrancyGuard {
      */
     function fundEscrow(uint256 orderId, uint256 amount)
         external
+        payable
         onlyBuyer(orderId)
         orderMustExist(orderId)
         nonReentrant
@@ -309,8 +311,13 @@ contract EscrowContract is Ownable, ReentrancyGuard {
         require(amount == order.amount, "Amount does not match order amount");
         require(!processedPaymentIds[order.externalPaymentId], "Payment already processed");
 
-        // Transfer tokens from buyer to contract
-        IERC20(order.paymentToken).safeTransferFrom(msg.sender, address(this), amount);
+        // Transfer tokens/ETH from buyer to contract
+        if (order.paymentToken == address(0)) {
+            require(msg.value == amount, "Incorrect ETH amount");
+        } else {
+            require(msg.value == 0, "Do not send ETH for token orders");
+            IERC20(order.paymentToken).safeTransferFrom(msg.sender, address(this), amount);
+        }
 
         order.status = OrderStatus.FUNDED;
         order.fundedAt = block.timestamp;
@@ -377,7 +384,7 @@ contract EscrowContract is Ownable, ReentrancyGuard {
         require(block.timestamp >= order.autoReleaseDeadline, "Auto-release deadline not reached");
 
         order.status = OrderStatus.COMPLETED;
-        IERC20(order.paymentToken).safeTransfer(order.seller, order.amount);
+        _safeTransfer(order.paymentToken, order.seller, order.amount);
 
         emit OrderAutoReleased(orderId, order.amount, block.timestamp);
         emit FundsReleasedToSeller(orderId, order.seller, order.amount, block.timestamp);
@@ -430,7 +437,7 @@ contract EscrowContract is Ownable, ReentrancyGuard {
         }
 
         order.status = OrderStatus.REFUNDED;
-        IERC20(order.paymentToken).safeTransfer(order.buyer, amount);
+        _safeTransfer(order.paymentToken, order.buyer, amount);
 
         emit RefundIssuedToBuyer(orderId, order.buyer, amount, block.timestamp);
     }
@@ -505,14 +512,26 @@ contract EscrowContract is Ownable, ReentrancyGuard {
         order.status = OrderStatus.COMPLETED;
 
         if (buyerAmount > 0) {
-            IERC20(order.paymentToken).safeTransfer(order.buyer, buyerAmount);
+            _safeTransfer(order.paymentToken, order.buyer, buyerAmount);
         }
 
         if (sellerAmount > 0) {
-            IERC20(order.paymentToken).safeTransfer(order.seller, sellerAmount);
+            _safeTransfer(order.paymentToken, order.seller, sellerAmount);
         }
 
         emit DisputeResolved(disputeId, msg.sender, buyerAmount, sellerAmount, block.timestamp);
+    }
+
+    /**
+     * @notice Internal helper to transfer ETH or ERC20
+     */
+    function _safeTransfer(address token, address recipient, uint256 amount) private {
+        if (token == address(0)) {
+            (bool success, ) = payable(recipient).call{value: amount}("");
+            require(success, "ETH transfer failed");
+        } else {
+            IERC20(token).safeTransfer(recipient, amount);
+        }
     }
 
     // View Functions
