@@ -4,14 +4,16 @@ import { WagmiProvider, createConfig, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CampProvider } from '@campnetwork/origin/react';
 import { baseCampTestnet } from '@/lib/campNetwork';
-import { injected } from 'wagmi/connectors';
+import { walletConnect } from 'wagmi/connectors';
 import { ReactNode, useMemo } from 'react';
 
 // Configure Wagmi
 const config = createConfig({
     chains: [baseCampTestnet],
     connectors: [
-        injected(),
+        walletConnect({
+            projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dummy-walletconnect-project-id',
+        }),
     ],
     transports: {
         [baseCampTestnet.id]: http(),
