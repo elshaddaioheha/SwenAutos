@@ -114,14 +114,7 @@ export function LoginButton({ redirectUrl = "/dashboard", onSuccess }: LoginButt
     const handleLogin = async () => {
         setIsConnecting(true);
         try {
-            // Check if window.ethereum exists
-            if (typeof window !== 'undefined' && !(window as any).ethereum) {
-                push({ type: "error", message: "No crypto wallet found. Please install MetaMask." });
-                setIsConnecting(false);
-                return;
-            }
-
-            // Explicitly use the first available connector (usually injected/MetaMask)
+            // Use the WalletConnect connector (which is now the only one configured)
             const connector = connectors[0];
             if (!connector) {
                 push({ type: "error", message: "No wallet connector found." });

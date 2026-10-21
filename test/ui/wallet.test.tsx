@@ -18,6 +18,9 @@ vi.mock('@/lib/supabase', () => {
     select: vi.fn(() => ({
       eq: vi.fn(() => ({
         single: vi.fn(() => Promise.resolve({ data: { role: 'buyer', full_name: 'Test User' }, error: null }))
+      })),
+      ilike: vi.fn(() => ({
+        single: vi.fn(() => Promise.resolve({ data: { role: 'buyer', full_name: 'Test User' }, error: null }))
       }))
     })),
     update: vi.fn(() => ({
@@ -42,6 +45,17 @@ vi.mock('wagmi', () => ({
   useAccount: () => useAccountMock(),
   useConnect: () => useConnectMock()
 }));
+
+// Mock viem
+vi.mock('viem', async (importOriginal) => {
+  const actual: any = await importOriginal();
+  return {
+    ...actual,
+    createPublicClient: vi.fn(() => ({
+      readContract: vi.fn(() => Promise.resolve([])),
+    })),
+  };
+});
 
 // Mock origin/react
 const useAuthStateMock = vi.fn();
@@ -85,7 +99,7 @@ describe('LoginButton (wallet) integration', () => {
   });
 
   it('when authenticated + address present, it syncs to AuthProvider login and redirects', async () => {
-    const mockAddress = '0xDEADBEEF0123456789';
+    const mockAddress = '0x0000000000000000000000000000000000000000';
 
     useAuthStateMock.mockReturnValue({ authenticated: true, loading: false });
     useAccountMock.mockReturnValue({ address: mockAddress, isConnected: true });
