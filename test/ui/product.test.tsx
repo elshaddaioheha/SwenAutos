@@ -10,6 +10,14 @@ vi.mock('next/link', () => ({ __esModule: true, default: ({ children }: any) => 
 const pushMock = vi.fn();
 vi.mock('next/navigation', async () => ({ useRouter: () => ({ push: pushMock }) }));
 
+// Mock Supabase
+vi.mock('@/lib/supabase', () => ({
+  supabase: {
+    from: vi.fn(),
+    auth: { getUser: vi.fn() },
+  },
+}));
+
 // Mock auth hooks (start unauthenticated by default)
 let authState = { isAuthenticated: false };
 const loginMock = vi.fn((user: any) => { authState.isAuthenticated = true; });
