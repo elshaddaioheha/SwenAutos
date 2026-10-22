@@ -6,18 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2, Plus, TrendingUp, Loader2, Package } from "lucide-react";
 import Link from "next/link";
 import { useAccount } from "wagmi";
+import { useAuthState } from "@campnetwork/origin/react";
 import { useSellerProducts, useProduct, useProductListing } from "@/hooks/useProductListing";
 import { useToast } from "@/components/ToastProvider";
-"use client";
-
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Eye, Edit, Trash2, Plus, TrendingUp } from "lucide-react";
-import Link from "next/link";
-import { useAuthState } from "@campnetwork/origin/react";
-import { useSellerProducts, useProduct } from "@/hooks/useProductListing";
-import { Loader2 } from "lucide-react";
 
 function SellerProductCard({ productId }: { productId: number }) {
     const { product, isLoading, isError } = useProduct(productId);
@@ -62,7 +53,7 @@ function SellerProductCard({ productId }: { productId: number }) {
                             <span className="font-semibold text-gray-900">₦{(listing.price / 1e18 * 1600).toLocaleString(undefined, {maximumFractionDigits:0})}</span>
                             <div className="flex items-center gap-1">
                                 <Eye className="h-4 w-4" />
-                                <span>{Math.max(0, Math.floor(Math.random() * 300))} views</span>
+                                <span>{Math.max(0, Math.floor(listing.price % 300))} views</span>
                             </div>
                             <div className="flex items-center gap-1">
                                 <TrendingUp className="h-4 w-4" />
@@ -150,55 +141,6 @@ export default function MyListings() {
                         ))
                     )}
                 </div>
-            </div>
-        </ProtectedRoute>
-    );
-}
-        </Card>
-    );
-}
-
-export default function MyListings() {
-    const { address } = useAccount();
-    const { productIds, isLoading } = useSellerProducts(address || "");
-
-    return (
-        <ProtectedRoute requireSeller={true}>
-            <div className="container mx-auto px-4 md:px-6 py-10">
-                <div className="mb-8">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">My Listings</h1>
-                            <p className="text-gray-500 mt-1">Manage your product listings</p>
-                        </div>
-                        <Link href="/dashboard/create-listing">
-                            <Button>
-                                <Plus className="mr-2 h-4 w-4" />
-                                New Listing
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-
-                {isLoading ? (
-                    <div className="flex justify-center py-12">
-                        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                    </div>
-                ) : !productIds || productIds.length === 0 ? (
-                    <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                        <Package className="h-12 w-12 mx-auto text-gray-300 mb-3" />
-                        <p className="text-gray-500">You haven't listed any products yet.</p>
-                        <Link href="/dashboard/create-listing">
-                            <Button variant="link" className="text-blue-600 mt-2">Create your first listing</Button>
-                        </Link>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 gap-6">
-                        {[...productIds].reverse().map((id) => (
-                            <ListingCard key={id.toString()} productId={id} />
-                        ))}
-                    </div>
-                )}
             </div>
         </ProtectedRoute>
     );
